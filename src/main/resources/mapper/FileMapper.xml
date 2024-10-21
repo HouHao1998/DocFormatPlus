@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.doc.format.mapper.FileMapper">
+    <!-- 文件总览查询 -->
+    <select id="getList" resultType="com.doc.format.vo.FileListVo"
+            parameterType="com.doc.format.bo.FileQueryBo">
+        SELECT id,
+        file_name,
+        file_type,
+        file_path,
+        file_url,
+        result_json,
+        add_time,
+        deleted,
+        html_path,
+        result_doc_path,
+        validation_result_json,
+        json_html_path
+        FROM file
+        <where>
+            <if test="queryBo.id != null">
+                and id =
+                #{queryBo.id}
+            </if>
+            <if test="queryBo.fileName != null and queryBo.fileName != ''">
+                <bind name="fileNameLikeValue"
+                      value="'%' + queryBo.fileName + '%'"/>
+                and file_name like
+                #{fileNameLikeValue}
+            </if>
+            <if test="queryBo.fileType != null and queryBo.fileType != ''">
+                <bind name="fileTypeLikeValue"
+                      value="'%' + queryBo.fileType + '%'"/>
+                and file_type like
+                #{fileTypeLikeValue}
+            </if>
+            <if test="queryBo.filePath != null and queryBo.filePath != ''">
+                <bind name="filePathLikeValue"
+                      value="'%' + queryBo.filePath + '%'"/>
+                and file_path like
+                #{filePathLikeValue}
+            </if>
+            <if test="queryBo.fileUrl != null and queryBo.fileUrl != ''">
+                <bind name="fileUrlLikeValue"
+                      value="'%' + queryBo.fileUrl + '%'"/>
+                and file_url like
+                #{fileUrlLikeValue}
+            </if>
+            <if test="queryBo.resultJson != null and queryBo.resultJson != ''">
+                <bind name="resultJsonLikeValue"
+                      value="'%' + queryBo.resultJson + '%'"/>
+                and result_json like
+                #{resultJsonLikeValue}
+            </if>
+            <if test="queryBo.addTime != null">
+                and add_time =
+                #{queryBo.addTime}
+            </if>
+            <if test="queryBo.deleted != null">
+                and deleted =
+                #{queryBo.deleted}
+            </if>
+            <if test="queryBo.htmlPath != null and queryBo.htmlPath != ''">
+                <bind name="htmlPathLikeValue"
+                      value="'%' + queryBo.htmlPath + '%'"/>
+                and html_path like
+                #{htmlPathLikeValue}
+            </if>
+            <if test="queryBo.resultDocPath != null and queryBo.resultDocPath != ''">
+                <bind name="resultDocPathLikeValue"
+                      value="'%' + queryBo.resultDocPath + '%'"/>
+                and result_doc_path like
+                #{resultDocPathLikeValue}
+            </if>
+            <if test="queryBo.validationResultJson != null and queryBo.validationResultJson != ''">
+                <bind name="validationResultJsonLikeValue"
+                      value="'%' + queryBo.validationResultJson + '%'"/>
+                and validation_result_json like
+                #{validationResultJsonLikeValue}
+            </if>
+            <if test="queryBo.jsonHtmlPath != null and queryBo.jsonHtmlPath != ''">
+                <bind name="jsonHtmlPathLikeValue"
+                      value="'%' + queryBo.jsonHtmlPath + '%'"/>
+                and json_html_path like
+                #{jsonHtmlPathLikeValue}
+            </if>
+        </where>
+    </select>
+</mapper>
