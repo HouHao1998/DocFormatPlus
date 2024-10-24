@@ -54,14 +54,16 @@ public class DocumentFormatChecker {
                 titleParagraph = (ParagraphElement) documentElements.get(index);
             }
             for (int i = 0; i < titleParagraph.getTextElements().size(); i++) {
-                validationResults.add(ContentType.CHINESE_TITLE.validate(titleParagraph.getTextElements().get(i), index));
+                validationResults.add(ContentType.CHINESE_TITLE.validate(titleParagraph.getTextElements().get(i), titleParagraph.getParagraphIndex(), titleParagraph.getSectionIndex()));
             }
         } else {
+            ParagraphElement titleParagraph = (ParagraphElement) documentElements.get(index);
             validationResults.add(new ValidationResult(
                     ContentType.CHINESE_TITLE.getDescription(),
                     ContentType.CHINESE_TITLE.name(),
                     false,
-                    index,
+                    titleParagraph.getParagraphIndex(),
+                    titleParagraph.getSectionIndex(),
                     new ArrayList<>()
             ));
         }
@@ -75,14 +77,16 @@ public class DocumentFormatChecker {
                 authorParagraph = (ParagraphElement) documentElements.get(index);
             }
             for (int i = 0; i < authorParagraph.getTextElements().size(); i++) {
-                validationResults.add(ContentType.AUTHOR_NAME.validate(authorParagraph.getTextElements().get(i), index));
+                validationResults.add(ContentType.AUTHOR_NAME.validate(authorParagraph.getTextElements().get(i), authorParagraph.getParagraphIndex(), authorParagraph.getSectionIndex()));
             }
         } else {
+            ParagraphElement authorParagraph = (ParagraphElement) documentElements.get(index);
             validationResults.add(new ValidationResult(
                     ContentType.AUTHOR_NAME.getDescription(),
                     ContentType.AUTHOR_NAME.name(),
                     false,
-                    index,
+                    authorParagraph.getParagraphIndex(),
+                    authorParagraph.getSectionIndex(),
                     new ArrayList<>()
             ));
         }
@@ -96,14 +100,16 @@ public class DocumentFormatChecker {
                 workUnitParagraph = (ParagraphElement) documentElements.get(index);
             }
             for (int i = 0; i < workUnitParagraph.getTextElements().size(); i++) {
-                validationResults.add(ContentType.WORK_UNIT.validate(workUnitParagraph.getTextElements().get(i), index));
+                validationResults.add(ContentType.WORK_UNIT.validate(workUnitParagraph.getTextElements().get(i),  workUnitParagraph.getParagraphIndex(), workUnitParagraph.getSectionIndex()));
             }
         } else {
+            ParagraphElement workUnitParagraph = (ParagraphElement) documentElements.get(index);
             validationResults.add(new ValidationResult(
                     ContentType.WORK_UNIT.getDescription(),
                     ContentType.WORK_UNIT.name(),
                     false,
-                    index,
+                    workUnitParagraph.getParagraphIndex(),
+                    workUnitParagraph.getSectionIndex(),
                     new ArrayList<>()
             ));
         }
@@ -170,7 +176,8 @@ public class DocumentFormatChecker {
                             ContentType.REFERENCES_TITLE.getDescription(),
                             ContentType.REFERENCES_TITLE.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                     foundReferenceTitle = true;
@@ -186,7 +193,8 @@ public class DocumentFormatChecker {
                             ContentType.REFERENCES_CONTENT.getDescription(),
                             ContentType.REFERENCES_CONTENT.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                 }
@@ -215,7 +223,8 @@ public class DocumentFormatChecker {
                             ContentType.IMAGE_TABLE_TITLE.getDescription(),
                             ContentType.IMAGE_TABLE_TITLE.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                 }
@@ -280,7 +289,8 @@ public class DocumentFormatChecker {
                     ContentType.CHINESE_ABSTRACT_TITLE.getDescription(),
                     ContentType.CHINESE_ABSTRACT_TITLE.name(),
                     true,
-                    index,
+                    paragraph.getParagraphIndex(),
+                    paragraph.getSectionIndex(),
                     titleTextElements
             ));
         }
@@ -294,7 +304,8 @@ public class DocumentFormatChecker {
                     ContentType.CHINESE_ABSTRACT_CONTENT.getDescription(),
                     ContentType.CHINESE_ABSTRACT_CONTENT.name(),
                     true,
-                    index,
+                    paragraph.getParagraphIndex(),
+                    paragraph.getSectionIndex(),
                     contentTextElements
             ));
         }
@@ -308,7 +319,8 @@ public class DocumentFormatChecker {
                     ContentType.CHINESE_KEYWORDS_TITLE.getDescription(),
                     ContentType.CHINESE_KEYWORDS_TITLE.name(),
                     true,
-                    index,
+                    paragraph.getParagraphIndex(),
+                    paragraph.getSectionIndex(),
                     keywordTitleTextElements
             ));
         }
@@ -322,7 +334,8 @@ public class DocumentFormatChecker {
                     ContentType.CHINESE_KEYWORDS_CONTENT.getDescription(),
                     ContentType.CHINESE_KEYWORDS_CONTENT.name(),
                     true,
-                    index,
+                    paragraph.getParagraphIndex(),
+                    paragraph.getSectionIndex(),
                     keywordContentTextElements
             ));
         }
@@ -392,7 +405,8 @@ public class DocumentFormatChecker {
                     ContentType.ENGLISH_ABSTRACT_TITLE.getDescription(),
                     ContentType.ENGLISH_ABSTRACT_TITLE.name(),
                     true,
-                    index,
+                    paragraph.getParagraphIndex(),
+                    paragraph.getSectionIndex(),
                     abstractTitleTextElements
             ));
         }
@@ -406,7 +420,8 @@ public class DocumentFormatChecker {
                     ContentType.ENGLISH_ABSTRACT_CONTENT.getDescription(),
                     ContentType.ENGLISH_ABSTRACT_CONTENT.name(),
                     true,
-                    index,
+                    paragraph.getParagraphIndex(),
+                    paragraph.getSectionIndex(),
                     abstractContentTextElements
             ));
         }
@@ -420,7 +435,8 @@ public class DocumentFormatChecker {
                     ContentType.ENGLISH_KEYWORDS_TITLE.getDescription(),
                     ContentType.ENGLISH_KEYWORDS_TITLE.name(),
                     true,
-                    index,
+                    paragraph.getParagraphIndex(),
+                    paragraph.getSectionIndex(),
                     keywordTitleTextElements
             ));
         }
@@ -434,7 +450,8 @@ public class DocumentFormatChecker {
                     ContentType.ENGLISH_KEYWORDS_CONTENT.getDescription(),
                     ContentType.ENGLISH_KEYWORDS_CONTENT.name(),
                     true,
-                    index,
+                    paragraph.getParagraphIndex(),
+                    paragraph.getSectionIndex(),
                     keywordContentTextElements
             ));
         }
@@ -462,7 +479,8 @@ public class DocumentFormatChecker {
                             ContentType.OTHER_PROJECTS.getDescription(),
                             ContentType.OTHER_PROJECTS.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                     break;  // 找到 "其他项目" 后即可结束
@@ -493,7 +511,8 @@ public class DocumentFormatChecker {
                             ContentType.ENGLISH_TITLE.getDescription(),
                             ContentType.ENGLISH_TITLE.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                     foundEnglishTitle = true;
@@ -509,7 +528,8 @@ public class DocumentFormatChecker {
                             ContentType.ENGLISH_AUTHOR_NAME.getDescription(),
                             ContentType.ENGLISH_AUTHOR_NAME.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                     foundEnglishAuthor = true;
@@ -525,7 +545,8 @@ public class DocumentFormatChecker {
                             ContentType.ENGLISH_WORK_UNIT.getDescription(),
                             ContentType.ENGLISH_WORK_UNIT.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                     foundEnglishOrg = true;
@@ -556,7 +577,8 @@ public class DocumentFormatChecker {
                             ContentType.MAIN_SECTION_TITLE.getDescription(),
                             ContentType.MAIN_SECTION_TITLE.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                 }
@@ -570,7 +592,8 @@ public class DocumentFormatChecker {
                             ContentType.SUB_SECTION_TITLE.getDescription(),
                             ContentType.SUB_SECTION_TITLE.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                 }
@@ -584,7 +607,8 @@ public class DocumentFormatChecker {
                             ContentType.MAIN_CONTENT.getDescription(),
                             ContentType.MAIN_CONTENT.name(),
                             true,
-                            i,
+                            paragraph.getParagraphIndex(),
+                            paragraph.getSectionIndex(),
                             textElements
                     ));
                 }

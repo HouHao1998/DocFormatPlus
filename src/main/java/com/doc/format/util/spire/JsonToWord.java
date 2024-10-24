@@ -1,29 +1,15 @@
 package com.doc.format.util.spire;
 
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONUtil;
 import com.doc.format.util.entity.*;
-import com.doc.format.util.excel.ReportTemplate;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spire.doc.*;
 import com.spire.doc.documents.Paragraph;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.spire.doc.documents.UnderlineStyle;
-import com.spire.doc.fields.DocPicture;
-import com.spire.doc.fields.Field;
 import com.spire.doc.fields.TextRange;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 
@@ -119,43 +105,50 @@ public class JsonToWord {
      */
     public static void modifyWordDocument(Document document, List<ValidationResult> validationResults, Boolean isAddPicture) {
         for (ValidationResult result : validationResults) {
-            int elementIndex = result.getElementIndex();  // 段落索引
-
+            int paragraphIndex = result.getParagraphIndex();
+            int sectionIndex = result.getSectionIndex();
+            Section section = document.getSections().get(sectionIndex);
+            if (section == null) {
+                continue;
+            }
+            DocumentObject documentObject = section.getBody().getChildObjects().get(paragraphIndex);
+            if (documentObject == null) {
+                continue;
+            }
             // 定位到文档中的段落
-            if (elementIndex < document.getSections().get(0).getBody().getChildObjects().getCount()) {
-                DocumentObject documentObject = document.getSections().get(0).getBody().getChildObjects().get(elementIndex);
-                if (documentObject instanceof Paragraph) {
-                    Paragraph paragraph = (Paragraph) documentObject;
+            if (documentObject instanceof Paragraph) {
+                Paragraph paragraph = (Paragraph) documentObject;
 
-                    // 遍历 ValidationResult 中的 TextElement
-                    for (TextElement textElement : result.getTextElements()) {
-                        int childObjectsIndex = textElement.getChildObjectsIndex();  // 文字元素的索引
+                // 遍历 ValidationResult 中的 TextElement
+                for (TextElement textElement : result.getTextElements()) {
+                    int childObjectsIndex = textElement.getChildObjectsIndex();  // 文字元素的索引
 
-                        if (childObjectsIndex < paragraph.getChildObjects().getCount()) {
-                            DocumentObject obj = paragraph.getChildObjects().get(childObjectsIndex);
+                    if (childObjectsIndex < paragraph.getChildObjects().getCount()) {
+                        DocumentObject obj = paragraph.getChildObjects().get(childObjectsIndex);
 
-                            // 修改字体和字号
-                            if (obj instanceof TextRange) {
-                                TextRange textRange = (TextRange) obj;
+                        // 修改字体和字号
+                        if (obj instanceof TextRange) {
+                            TextRange textRange = (TextRange) obj;
 
-                                // 根据参数决定使用哪种字体和字号
-                                if (isAddPicture) {
-                                    // 使用枚举中的字体和字号
-                                    ContentType contentType = ContentType.valueOf(result.getTypeName());
-                                    textRange.getCharacterFormat().setFontName(contentType.getExpectedFont());
-                                    textRange.getCharacterFormat().setFontSize(Float.parseFloat(contentType.getExpectedFontSize()));
-                                } else {
-                                    // 使用 ValidationResult 中的字体和字号
-                                    if (textElement.getFont() != null) {
-                                        textRange.getCharacterFormat().setFontName(textElement.getFont());
-                                    }
-                                    if (textElement.getFontSize() != null) {
-                                        textRange.getCharacterFormat().setFontSize(Float.parseFloat(textElement.getFontSize()));
-                                    }
+                            // 根据参数决定使用哪种字体和字号
+                            if (isAddPicture) {
+                                // 使用枚举中的字体和字号
+                                ContentType contentType = ContentType.valueOf(result.getTypeName());
+                                textRange.getCharacterFormat().setFontName(contentType.getExpectedFont());
+                                float v = Float.parseFloat(contentType.getExpectedFontSize());
+                                textRange.getCharacterFormat().setFontSize(v);
+                            } else {
+                                // 使用 ValidationResult 中的字体和字号
+                                if (textElement.getFont() != null) {
+                                    textRange.getCharacterFormat().setFontName(textElement.getFont());
+                                }
+                                if (textElement.getFontSize() != null) {
+                                    textRange.getCharacterFormat().setFontSize(Float.parseFloat(textElement.getFontSize()));
                                 }
                             }
                         }
                     }
+
                 }
             }
         }

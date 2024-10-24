@@ -34,23 +34,28 @@ public class ValidationResult {
      * 是否检测到内容
      */
     private boolean isContentDetected;
+    /**
+     * 处于第几节
+     */
+    private int sectionIndex;
 
     /**
-     * 内容在List<DocumentElement>的索引位置
+     * 处于第几段落
      */
 
-    private int elementIndex;
+    private int paragraphIndex;
     /**
      * 文本信息列表
      */
     private List<TextElement> textElements;
 
 
-    public ValidationResult(String type, String typeName, boolean isContentDetected, int elementIndex, List<TextElement> textElements) {
+    public ValidationResult(String type, String typeName, boolean isContentDetected, int elementIndex,int sectionIndex, List<TextElement> textElements) {
         this.type = type;
         this.typeName = typeName;
         this.isContentDetected = isContentDetected;
-        this.elementIndex = elementIndex;
+        this.paragraphIndex = elementIndex;
+        this.sectionIndex = sectionIndex;
         this.textElements = textElements;
 
     }

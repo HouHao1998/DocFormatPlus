@@ -211,7 +211,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         String documentElementsJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentElements);
         String documentElementsFilePath = saveJsonToFile(documentElementsJson, directoryPath, "documentElements.json");
         entity.setResultJson(documentElementsFilePath); // 只存储文件路径
-        String wordBatchCheckResult = ProofreadingUtil.wordBatchCheck(directoryPath + "documentElements.json");
+        String wordBatchCheckResult = ProofreadingUtil.wordBatchCheck(directoryPath + File.separator + "documentElements.json");
 
         String contentVerificationFilePath = saveJsonToFile(wordBatchCheckResult, directoryPath, "contentVerification.json");
         entity.setAddTime(new Date());
