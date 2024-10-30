@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
  *
  * @author HouHao
  * @version 1.0
- * @date 2024-10-21 20:00:06
+ * @date 2024-10-29 21:35:49
  */
 @Data
 @ApiModel
@@ -108,5 +108,10 @@ public class FileSaveBo implements Serializable {
     private String contentVerificationJson;
     private String uuid;
 
+    /**
+     * 内容教研结果html
+     */
+    @ApiModelProperty(value = "内容教研结果html")
+    private String contentVerificationHtml;
 
 }

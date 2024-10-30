@@ -84,9 +84,20 @@ public class CheckResponse {
              */
             private int pIndex;
             /**
+             * 段落具体内容
+             */
+            private String paragraph;
+            /**
+             * 错误的具体信息
+             */
+            private String errorText;
+            private String errorTextNew;
+            /**
              * 错误的详细描述信息
              */
             private List<Info> infos;
+
+            private Integer idx;
 
             /**
              * Info类表示每个错误的详细描述信息。

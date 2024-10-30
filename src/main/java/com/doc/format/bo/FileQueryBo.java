@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  *
  * @author HouHao
  * @version 1.0
- * @date 2024-10-21 20:00:06
+ * @date 2024-10-29 21:35:49
  */
 @Data
 @ApiModel
@@ -116,5 +116,11 @@ public class FileQueryBo extends PageBo implements Serializable {
      */
     @ApiModelProperty(value = "内容教研json")
     private String contentVerificationJson;
+
+    /**
+     * 内容教研结果html
+     */
+    @ApiModelProperty(value = "内容教研结果html")
+    private String contentVerificationHtml;
 
 }

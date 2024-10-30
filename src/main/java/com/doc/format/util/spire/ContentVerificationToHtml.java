@@ -1,19 +1,21 @@
 package com.doc.format.util.spire;
 
-
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.doc.format.util.iJianCha.CheckResponse;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Entities;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -29,58 +31,85 @@ import java.nio.file.StandardOpenOption;
  */
 public class ContentVerificationToHtml {
 
-    public static void main(String[] args) throws IOException {
-        addIdx("/Users/houhao/Downloads/word/6ebea590-6624-4e89-aab3-a416b635e880/result.html","/Users/houhao/Downloads/word/6ebea590-6624-4e89-aab3-a416b635e880/contentVerification.json");
+    public static void main(String[] args) throws Exception {
+        addIdx("/Users/houhao/Downloads/word/13405259-62f4-4676-850d-c848a9767153/result.html", "/Users/houhao/Downloads/word/13405259-62f4-4676-850d-c848a9767153/contentVerification.json");
     }
 
-    public static void addIdx(String filePath, String jsonFilePath) throws IOException {
-        // 读取 HTML 文件内容
-        String htmlContent = new String(Files.readAllBytes(Paths.get(filePath)), "UTF-8");
+    public static void addIdx(String htmlFilePath, String jsonFilePath) throws Exception {
+        // 读取 HTML 文件
+        String htmlContent = new String(Files.readAllBytes(Paths.get(htmlFilePath)), "UTF-8");
         String replace = htmlContent.replace("&#xa0;", "[NBSP]");
 
         // 解析 HTML，并将所有 &nbsp; 替换为 [NBSP] 占位符
         Document doc = Jsoup.parse(replace);
 
-        // 读取 JSON 数据
+        // 读取 JSON 数据，并解析为 Mistake 列表
         String jsonContent = new String(Files.readAllBytes(Paths.get(jsonFilePath)), "UTF-8");
-        JSONObject jsonObject = new JSONObject(jsonContent);
+        List<CheckResponse.Result.Mistake> mistakes = JSON.parseArray(jsonContent, CheckResponse.Result.Mistake.class);
 
-        // 获取段落索引和字符索引信息
-        int paragraphIndex = jsonObject.getInt("PIndex");
-        JSONArray infos = jsonObject.getJSONArray("infos");
+        // 按照 pIndex 分组 mistakes
+        Map<Integer, List<CheckResponse.Result.Mistake>> mistakesGroupedByPIndex = mistakes.stream()
+                .collect(Collectors.groupingBy(CheckResponse.Result.Mistake::getPIndex));
 
-        // 查找父标签是 div 的 p 标签
-        Elements pElements = doc.select("div > p");
-        if (paragraphIndex < pElements.size()) {
-            Element pElement = pElements.get(paragraphIndex);
+        // 遍历每个 pIndex 相关的 mistakes 列表
+        mistakesGroupedByPIndex.forEach((pIndex, mistakesList) -> {
+            Elements pElements = doc.select("div > p");
+            if (pIndex < pElements.size()) {
+                Element pElement = pElements.get(pIndex);
+                String paragraphText = pElement.text();
 
-            // 遍历 span 标签（如果有）
-            Elements spanElements = pElement.select("span");
-            for (Element spanElement : spanElements) {
-                // 获取 span 标签的文本内容，并处理字符索引
-                String spanText = spanElement.text();
+                // 用 StringBuilder 保存新段落内容
+                StringBuilder updatedParagraphHtml = new StringBuilder();
 
-                // 在合适的字符索引处插入带有样式的元素
-                for (int i = 0; i < infos.size(); i++) {
-                    JSONObject info = infos.getJSONObject(i);
-                    int startIdx = info.getInt("l");
-                    int endIdx = info.getInt("r");
+                // 当前索引位置
+                int currentPos = 0;
 
-                    // 根据索引插入新的 span 标签
-                    String modifiedText = spanText.substring(0, startIdx)
-                            + "<span data-proof-id=\"" + info.getInt("pl") + "\" class=\"custom-underline-red idx "
-                            + info.getInt("pr") + "\">" + spanText.substring(startIdx, endIdx)
-                            + "</span>" + spanText.substring(endIdx);
+                // 遍历当前 pIndex 下的所有 mistakes
+                for (int i = 0, mistakesListSize = mistakesList.size(); i < mistakesListSize; i++) {
+                    CheckResponse.Result.Mistake mistake = mistakesList.get(i);
+                    int pl = mistake.getPl();  // 段落中错误位置的左索引
+                    int pr = mistake.getPr();  // 段落中错误位置的右索引
+                    // 将错误前的文本添加为没有 class 的 span
+                    if (currentPos < pl) {
+                        String normalText = paragraphText.substring(currentPos, pl);
+                        Element normalSpan = new Element(Tag.valueOf("span"), "");
+                        normalSpan.text(normalText);
+                        updatedParagraphHtml.append(normalSpan.outerHtml());
+                    }
 
-                    spanElement.text(modifiedText);
+                    // 为错误文本添加 custom-underline-red class 的 span
+                    String errorText = paragraphText.substring(pl, pr);
+                    Element errorSpan = new Element(Tag.valueOf("span"), "");
+                    errorSpan.attr("class", "custom-underline-red idx "+mistake.getIdx());
+                    errorSpan.attr("data-proof-id", String.valueOf(mistake.getIdx()));
+                    errorSpan.text(errorText);
+                    updatedParagraphHtml.append(errorSpan.outerHtml());
+
+                    // 更新当前处理位置
+                    currentPos = pr;
                 }
+                // 将剩余文本添加为没有 class 的 span
+                if (currentPos < paragraphText.length()) {
+                    String remainingText = paragraphText.substring(currentPos);
+                    Element remainingSpan = new Element(Tag.valueOf("span"), "");
+                    remainingSpan.text(remainingText);
+                    updatedParagraphHtml.append(remainingSpan.outerHtml());
+                }
+
+                // 更新 p 标签中的 HTML 内容
+                pElement.html(updatedParagraphHtml.toString());
             }
-        }
+        });
 
-        // 保存修改后的 HTML 文件
-        Files.write(Paths.get(filePath), doc.outerHtml().getBytes(StandardCharsets.UTF_8));
+        // 获取原文件路径并生成新文件名（增加后缀 _文件校验后.html）
+        Path originalPath = Paths.get(htmlFilePath);
+        String newFileName = originalPath.getFileName().toString().replace(".html", "_文件校验后.html");
+        Path newFilePath = originalPath.resolveSibling(newFileName);
+
+        // 输出之前将 [NBSP] 占位符替换回 &nbsp;
+        String outputHtml = doc.html().replace("[NBSP]", "&#xa0;");
+        // 将修改后的 HTML 内容写入新文件
+        Files.write(newFilePath, outputHtml.getBytes("UTF-8"), StandardOpenOption.CREATE);
     }
-
-
 
 }

@@ -107,5 +107,5 @@ public interface IFileService extends IService<FileEntity> {
      */
     Result<List<FileListVo>> selectIdsList(List<Long> ids);
 
-    Result<FileDetailVo> wordBatchCheck(FileSaveBo saveBo) throws IOException;
+    Result<FileDetailVo> wordBatchCheck(FileSaveBo saveBo) throws Exception;
 }

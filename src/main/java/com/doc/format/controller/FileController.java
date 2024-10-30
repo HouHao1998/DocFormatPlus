@@ -131,7 +131,7 @@ public class FileController {
 
     @ApiOperation(value = "word批量检查", notes = "word批量检查")
     @PostMapping("/wordBatchCheck")
-    public Result<FileDetailVo> wordBatchCheck(@RequestParam("file") MultipartFile file) throws IOException {
+    public Result<FileDetailVo> wordBatchCheck(@RequestParam("file") MultipartFile file) throws Exception {
         // 检查文件是否为空
         if (file.isEmpty()) {
             return Result.fail("上传的文件不能为空");

@@ -14,10 +14,7 @@ import com.doc.format.util.docx4j.JsonToHtmlConverter;
 import com.doc.format.util.entity.DocumentElement;
 import com.doc.format.util.entity.ValidationResult;
 import com.doc.format.util.iJianCha.ProofreadingUtil;
-import com.doc.format.util.spire.DocumentFormatChecker;
-import com.doc.format.util.spire.HtmlParser;
-import com.doc.format.util.spire.WordRevision;
-import com.doc.format.util.spire.WordToHtml;
+import com.doc.format.util.spire.*;
 import com.doc.format.vo.FileDetailVo;
 import com.doc.format.vo.FileListVo;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -182,7 +179,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
     }
 
     @Override
-    public Result<FileDetailVo> wordBatchCheck(FileSaveBo saveBo) throws IOException {
+    public Result<FileDetailVo> wordBatchCheck(FileSaveBo saveBo) throws Exception {
         // 转换参数实体
         FileEntity entity = BeanUtil.copyProperties(saveBo, FileEntity.class);
         String filePath = entity.getFilePath();
@@ -216,7 +213,10 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         String contentVerificationFilePath = saveJsonToFile(wordBatchCheckResult, directoryPath, "contentVerification.json");
         entity.setAddTime(new Date());
         entity.setContentVerificationJson(contentVerificationFilePath);
-
+        if (htmlPath != null) {
+            ContentVerificationToHtml.addIdx(htmlPath,contentVerificationFilePath);
+            entity.setContentVerificationHtml(htmlPath.replace(".html", "_文件校验后.html"));
+        }
         baseMapper.insert(entity);
         return Result.success(BeanUtil.copyProperties(entity, FileDetailVo.class));
     }

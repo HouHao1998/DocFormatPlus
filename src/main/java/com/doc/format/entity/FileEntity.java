@@ -15,7 +15,7 @@ import java.io.Serializable;
  *
  * @author HouHao
  * @version 1.0
- * @date 2024-10-21 20:00:06
+ * @date 2024-10-29 21:35:49
  */
 @Data
 @TableName("file")
@@ -88,4 +88,9 @@ public class FileEntity implements Serializable {
      */
     @TableField("content_verification_json")
     private String contentVerificationJson;
+    /**
+     * 内容教研结果html
+     */
+    @TableField("content_verification_html")
+    private String contentVerificationHtml;
 }

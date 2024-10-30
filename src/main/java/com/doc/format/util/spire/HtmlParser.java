@@ -9,6 +9,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
@@ -31,12 +32,12 @@ public class HtmlParser {
     }
 
     public static void addIdx(String filePath) throws IOException {
+        // 读取 HTML 文件
         String htmlContent = new String(Files.readAllBytes(Paths.get(filePath)), "UTF-8");
         String replace = htmlContent.replace("&#xa0;", "[NBSP]");
 
         // 解析 HTML，并将所有 &nbsp; 替换为 [NBSP] 占位符
         Document doc = Jsoup.parse(replace);
-
 
         // 查找父标签是 div 的 p 标签
         Elements pElements = doc.select("div > p");
@@ -84,11 +85,15 @@ public class HtmlParser {
         doc = Jsoup.parse(outputHtml);
         doc.outputSettings(outputSettings);
 
+        // 获取原文件的路径和文件名，生成新的文件名
+        Path originalPath = Paths.get(filePath);
+        String newFileName = originalPath.getFileName().toString().replace(".html", "_格式校研后.html");
+        Path newFilePath = originalPath.resolveSibling(newFileName);
 
-        // 将修改后的 HTML 内容写回文件
-        Files.write(Paths.get(filePath), outputHtml.getBytes("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING);
+        // 将修改后的 HTML 内容写入新文件
+        Files.write(newFilePath, outputHtml.getBytes("UTF-8"), StandardOpenOption.CREATE);
 
-        System.out.println("HTML 文件处理完成并保存到原路径: " + filePath);
+        System.out.println("HTML 文件处理完成并保存到新路径: " + newFilePath);
     }
 
     public static void updateImgSrc(String filePath, String httpUrl) throws IOException {
