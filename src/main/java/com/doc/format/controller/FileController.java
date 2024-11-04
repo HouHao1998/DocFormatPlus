@@ -194,7 +194,7 @@ public class FileController {
         return fileService.update(saveBo);
     }
 
-    @ApiOperation(value = "json 转 doc 格式化", notes = "上传并处理 JSON")
+    @ApiOperation(value = "指定文件和JSON进行格式化", notes = "上传并处理 JSON")
     @PostMapping("/jsonToDoc/{id}")
     public Result<FileDetailVo> jsonToDoc(@PathVariable("id") long id, @RequestParam("file") MultipartFile file) throws IOException {
         // 检查文件是否为空
@@ -232,5 +232,29 @@ public class FileController {
 
         // 返回更新结果
         return fileService.update(saveBo);
+    }
+    @ApiOperation(value = "校对html生成docx", notes = "校对html生成docx")
+    @PostMapping("/htmlToDoc/{id}")
+    public Result<String> htmlToDoc(@PathVariable("id") long id, @RequestParam("file") MultipartFile file) throws IOException {
+        // 检查文件是否为空
+        if (file.isEmpty()) {
+            return Result.fail("上传的文件不能为空");
+        }
+
+        // 获取上传文件的原始文件名
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.endsWith(".html")) {
+            return Result.fail("只允许上传 .html 文件");
+        }
+
+        // 创建上传文件的路径
+        UUID uuid = UUID.randomUUID();
+        Path directory = Paths.get(uploadDir + File.separator + uuid.toString());
+        Files.createDirectories(directory);  // 确保目录存在
+        Path jsonFilePath = directory.resolve(originalFilename);
+        Files.copy(file.getInputStream(), jsonFilePath);
+
+        // 返回更新结果
+        return fileService.htmlToDoc(id,directory.toString());
     }
 }

@@ -111,11 +111,13 @@ public class CheckResponse {
                 /**
                  * 推荐程度
                  */
-                private int type;
+                private Integer type;
+                private String typeName;
                 /**
                  * 错误类别
                  */
                 private String category;
+                private String categoryName;
                 /**
                  * 错误的描述信息1，可能为空
                  */

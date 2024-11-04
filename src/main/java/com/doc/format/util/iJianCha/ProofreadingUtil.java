@@ -202,86 +202,9 @@ public class ProofreadingUtil {
         }
     }
 
-    public static void main(String[] args) {
-        wordBatchCheck("/Users/houhao/Downloads/word/7241629a-36f9-40ab-b07e-2ebd65c211fd/documentElements.json");
-    }
-
-    /**
-     * 教研word批量校对示例
-     */
-
-    public static String wordBatchCheck(String path) {
-        try {
-            // 获取 accessToken
-            String accessToken = TokenUtil.getAccessToken();
-
-            // 读取 JSON 文件并解析为 List<DocumentElement>
-            ObjectMapper objectMapper = new ObjectMapper();
-            File file = new File(path);
-            List<DocumentElement> documentElements = parseDocumentElements(objectMapper.readTree(file).toString());
-
-            List<String> batches = new ArrayList<>();
-            List<List<ParagraphElement>> batchParagraphs = new ArrayList<>(); // 记录每批次的段落
-            List<CheckResponse.Result.Mistake> mistakes = new ArrayList<>();
-
-            StringBuilder currentBatch = new StringBuilder();
-            int currentBatchSize = 0;
-            int batchSize = 1000;
-            List<ParagraphElement> currentBatchParagraphs = new ArrayList<>();
-
-            for (DocumentElement element : documentElements) {
-                if (element instanceof ParagraphElement) {
-                    ParagraphElement paragraph = (ParagraphElement) element;
-                    String paragraphContent = paragraph.getContent();
-                    int paragraphLength = paragraphContent.length();
-
-                    // 如果当前批次内容接近上限，提交当前批次
-                    if (currentBatchSize + paragraphLength > batchSize) {
-                        batches.add(currentBatch.toString());
-                        batchParagraphs.add(new ArrayList<>(currentBatchParagraphs));
-
-                        // 重置当前批次
-                        currentBatch = new StringBuilder(paragraphContent).append("\n"); // 注意：保留换行符
-                        currentBatchSize = paragraphLength;
-                        currentBatchParagraphs.clear();
-                        currentBatchParagraphs.add(paragraph);
-                    } else {
-                        currentBatch.append(paragraphContent).append("\n"); // 每个段落末尾加换行符
-                        currentBatchSize += paragraphLength;
-                        currentBatchParagraphs.add(paragraph);
-                    }
-                }
-            }
-
-            // 添加最后的批次内容
-            if (currentBatchSize > 0) {
-                batches.add(currentBatch.toString());
-                batchParagraphs.add(new ArrayList<>(currentBatchParagraphs));
-            }
-
-            // 调用检测接口并处理错误映射
-            for (int i = 0; i < batches.size(); i++) {
-                String batch = batches.get(i);
-                List<ParagraphElement> paragraphs = batchParagraphs.get(i);
-
-                CheckRequest request = new CheckRequest(batch);
-                CheckResponse response = ProofreadingUtil.checkText(accessToken, request);
-
-                // 映射错误到对应段落
-                if (response != null && response.getResult() != null) {
-                    mapResponseToParagraphs(response, paragraphs, mistakes);
-                }
-            }
-
-            return JSON.toJSONString(mistakes);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     // 将校对返回的错误信息映射到对应段落
-    private static void mapResponseToParagraphs(CheckResponse response, List<ParagraphElement> paragraphElements, List<CheckResponse.Result.Mistake> mistakes) {
+    public static void mapResponseToParagraphs(CheckResponse response, List<ParagraphElement> paragraphElements, List<CheckResponse.Result.Mistake> mistakes) {
         if (response.getResult() != null && response.getResult().getMistakes() != null) {
             int currentOffset = 0; // 用于追踪批次内的段落偏移量
             int lastParagraphIndex = 0; // 记录上一个错误所在的段落索引
@@ -332,6 +255,17 @@ public class ProofreadingUtil {
                 }
             }
         }
+    }
+    public static List<DocumentElement> pathToDocumentElements(String path)  {
+        ObjectMapper objectMapper = new ObjectMapper();
+        File file = new File(path);
+        List<DocumentElement> documentElements = null;
+        try {
+            documentElements = parseDocumentElements(objectMapper.readTree(file).toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return documentElements;
     }
 
     // 手动解析方法

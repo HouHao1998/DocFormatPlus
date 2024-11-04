@@ -8,7 +8,6 @@ import com.doc.format.bo.FileSaveBo;
 import com.doc.format.bo.FileQueryBo;
 import com.doc.format.vo.FileDetailVo;
 import com.doc.format.vo.FileListVo;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
 import java.util.List;
@@ -108,4 +107,6 @@ public interface IFileService extends IService<FileEntity> {
     Result<List<FileListVo>> selectIdsList(List<Long> ids);
 
     Result<FileDetailVo> wordBatchCheck(FileSaveBo saveBo) throws Exception;
+
+    Result<String> htmlToDoc(long id, String file);
 }

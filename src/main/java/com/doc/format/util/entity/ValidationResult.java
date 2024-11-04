@@ -50,7 +50,7 @@ public class ValidationResult {
     private List<TextElement> textElements;
 
 
-    public ValidationResult(String type, String typeName, boolean isContentDetected, int elementIndex,int sectionIndex, List<TextElement> textElements) {
+    public ValidationResult(String type, String typeName, boolean isContentDetected, int elementIndex, int sectionIndex, List<TextElement> textElements) {
         this.type = type;
         this.typeName = typeName;
         this.isContentDetected = isContentDetected;

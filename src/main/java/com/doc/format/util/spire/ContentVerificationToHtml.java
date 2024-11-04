@@ -1,9 +1,11 @@
 package com.doc.format.util.spire;
 
 import com.alibaba.fastjson2.JSON;
+import com.doc.format.util.entity.DocumentElement;
+import com.doc.format.util.entity.ParagraphElement;
 import com.doc.format.util.iJianCha.CheckResponse;
+import org.docx4j.wml.P;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
@@ -13,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,12 +34,43 @@ import java.util.stream.Collectors;
  * @date 2024/9/24 18:20
  */
 public class ContentVerificationToHtml {
+    /**
+     * 解析 HTML 内容，提取所有 data-proof-sid 和 data-proof-pid 属性值，并将其作为键，对应的值为 <p> 标签下所有的 <span> 标签的文本内容，组成 Map 返回。
+     * @param html
+     * @return
+     */
+    public static Map<String, String> extractProofData(String html) {
+        Map<String, String> result = new HashMap<>();
 
-    public static void main(String[] args) throws Exception {
-        addIdx("/Users/houhao/Downloads/word/13405259-62f4-4676-850d-c848a9767153/result.html", "/Users/houhao/Downloads/word/13405259-62f4-4676-850d-c848a9767153/contentVerification.json");
+        // 使用 Jsoup 解析 HTML
+        Document document = Jsoup.parse(html);
+
+        // 查找所有在 div 下的 <p> 标签
+        Elements pElements = document.select("div > p[data-proof-sid][data-proof-pid]");
+
+        for (Element paragraph : pElements) {
+            // 获取 data-proof-sid 和 data-proof-pid 属性值
+            String dataProofSid = paragraph.attr("data-proof-sid");
+            String dataProofPid = paragraph.attr("data-proof-pid");
+
+            // 拼接键值
+            String key = dataProofSid + "-" + dataProofPid;
+
+            // 获取 <p> 标签下所有的 <span> 标签并拼接文本
+            StringBuilder textBuilder = new StringBuilder();
+            for (Element span : paragraph.select("span")) {
+                textBuilder.append(span.text());
+            }
+
+            // 将拼接结果存入 map
+            result.put(key, textBuilder.toString());
+        }
+
+        return result;
     }
 
-    public static void addIdx(String htmlFilePath, String jsonFilePath) throws Exception {
+
+    public static void addIdx(String htmlFilePath, String jsonFilePath, List<DocumentElement> documentElements) throws Exception {
         // 读取 HTML 文件
         String htmlContent = new String(Files.readAllBytes(Paths.get(htmlFilePath)), "UTF-8");
         String replace = htmlContent.replace("&#xa0;", "[NBSP]");
@@ -50,7 +85,18 @@ public class ContentVerificationToHtml {
         // 按照 pIndex 分组 mistakes
         Map<Integer, List<CheckResponse.Result.Mistake>> mistakesGroupedByPIndex = mistakes.stream()
                 .collect(Collectors.groupingBy(CheckResponse.Result.Mistake::getPIndex));
-
+        List<ParagraphElement> paragraphElements =new ArrayList<>();
+        for (DocumentElement documentElement : documentElements) {
+            if(documentElement instanceof ParagraphElement){
+                paragraphElements.add((ParagraphElement) documentElement);
+            }
+        }
+        Elements pElementAll = doc.select("div > p");
+        for (int i = 0, pElementsSize = pElementAll.size(); i < pElementsSize; i++) {
+            Element p = pElementAll.get(i);
+            p.attr("data-proof-pid", String.valueOf(paragraphElements.get(i).getParagraphIndex()));
+            p.attr("data-proof-sid", String.valueOf(paragraphElements.get(i).getSectionIndex()));
+        }
         // 遍历每个 pIndex 相关的 mistakes 列表
         mistakesGroupedByPIndex.forEach((pIndex, mistakesList) -> {
             Elements pElements = doc.select("div > p");
@@ -80,7 +126,7 @@ public class ContentVerificationToHtml {
                     // 为错误文本添加 custom-underline-red class 的 span
                     String errorText = paragraphText.substring(pl, pr);
                     Element errorSpan = new Element(Tag.valueOf("span"), "");
-                    errorSpan.attr("class", "custom-underline-red idx "+mistake.getIdx());
+                    errorSpan.attr("class", "custom-underline-red idx " + mistake.getIdx());
                     errorSpan.attr("data-proof-id", String.valueOf(mistake.getIdx()));
                     errorSpan.text(errorText);
                     updatedParagraphHtml.append(errorSpan.outerHtml());

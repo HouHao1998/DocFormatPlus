@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.doc.format.mapper.CheckLogMapper">
+    <!-- 爱校对校验日志查询 -->
+    <select id="getList" resultType="com.doc.format.vo.CheckLogListVo"
+            parameterType="com.doc.format.bo.CheckLogQueryBo">
+        SELECT id,
+               file_id,
+               quantity,
+               position,
+               total
+        FROM check_log
+        <where>
+            <if test="queryBo.id != null">
+                and id =
+                    #{queryBo.id}
+            </if>
+            <if test="queryBo.fileId != null">
+                and file_id =
+                    #{queryBo.fileId}
+            </if>
+            <if test="queryBo.quantity != null">
+                and quantity =
+                    #{queryBo.quantity}
+            </if>
+            <if test="queryBo.position != null">
+                and position =
+                    #{queryBo.position}
+            </if>
+            <if test="queryBo.total != null">
+                and total =
+                    #{queryBo.total}
+            </if>
+        </where>
+    </select>
+</mapper>

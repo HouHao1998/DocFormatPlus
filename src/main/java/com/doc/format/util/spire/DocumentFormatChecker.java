@@ -100,7 +100,7 @@ public class DocumentFormatChecker {
                 workUnitParagraph = (ParagraphElement) documentElements.get(index);
             }
             for (int i = 0; i < workUnitParagraph.getTextElements().size(); i++) {
-                validationResults.add(ContentType.WORK_UNIT.validate(workUnitParagraph.getTextElements().get(i),  workUnitParagraph.getParagraphIndex(), workUnitParagraph.getSectionIndex()));
+                validationResults.add(ContentType.WORK_UNIT.validate(workUnitParagraph.getTextElements().get(i), workUnitParagraph.getParagraphIndex(), workUnitParagraph.getSectionIndex()));
             }
         } else {
             ParagraphElement workUnitParagraph = (ParagraphElement) documentElements.get(index);

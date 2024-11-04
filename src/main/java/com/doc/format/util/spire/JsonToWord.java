@@ -59,6 +59,18 @@ public class JsonToWord {
         // 保存修改后的文档
         String outputFilePath = generateOutputFilePath(jsonResult);
         document.saveToFile(outputFilePath, FileFormat.Docx_2010);
+        removeTite(outputFilePath);
+        // 返回结果文件的地址
+        return outputFilePath;
+
+
+    }/**
+     * 去除word文档的标题
+     * @param outputFilePath 输出文件路径
+     * @throws IOException
+     */
+
+    public static void removeTite(String outputFilePath) throws IOException {
         InputStream is = new FileInputStream(outputFilePath);
         XWPFDocument document2 = new XWPFDocument(is);
         //以上Spire.Doc 生成的文件会自带警告信息，这里来删除Spire.Doc 的警告
@@ -71,10 +83,6 @@ public class JsonToWord {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // 返回结果文件的地址
-        return outputFilePath;
-
-
     }
 
 

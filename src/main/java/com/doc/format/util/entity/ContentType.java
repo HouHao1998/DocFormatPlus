@@ -74,7 +74,7 @@ public enum ContentType {
     /**
      * 校验 TextElement 的字体和字号，并返回包含 TextElement 列表的 ValidationResult
      */
-    public ValidationResult validate(TextElement textElement,  int pIndex,int sectionIndex ) {
+    public ValidationResult validate(TextElement textElement, int pIndex, int sectionIndex) {
         // 检测内容是否存在
         boolean isContentDetected = textElement.getContent() != null;
 
