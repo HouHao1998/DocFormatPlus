@@ -11,6 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,36 +37,41 @@ import java.util.stream.Collectors;
 public class ContentVerificationToHtml {
     /**
      * 解析 HTML 内容，提取所有 data-proof-sid 和 data-proof-pid 属性值，并将其作为键，对应的值为 <p> 标签下所有的 <span> 标签的文本内容，组成 Map 返回。
+     *
      * @param html
      * @return
      */
     public static Map<String, String> extractProofData(String html) {
         Map<String, String> result = new HashMap<>();
+        try {
+            String htmlContent = new String(Files.readAllBytes(Paths.get(html)), "UTF-8");
 
-        // 使用 Jsoup 解析 HTML
-        Document document = Jsoup.parse(html);
+            // 使用 Jsoup 解析 HTML
+            Document document = Jsoup.parse(htmlContent);
 
-        // 查找所有在 div 下的 <p> 标签
-        Elements pElements = document.select("div > p[data-proof-sid][data-proof-pid]");
+            // 查找所有在 div 下的 <p> 标签
+            Elements pElements = document.select("div > p");
 
-        for (Element paragraph : pElements) {
-            // 获取 data-proof-sid 和 data-proof-pid 属性值
-            String dataProofSid = paragraph.attr("data-proof-sid");
-            String dataProofPid = paragraph.attr("data-proof-pid");
+            for (Element paragraph : pElements) {
+                // 获取 data-proof-sid 和 data-proof-pid 属性值
+                String dataProofSid = paragraph.attr("data-proof-sid");
+                String dataProofPid = paragraph.attr("data-proof-pid");
 
-            // 拼接键值
-            String key = dataProofSid + "-" + dataProofPid;
+                // 拼接键值
+                String key = dataProofSid + "-" + dataProofPid;
 
-            // 获取 <p> 标签下所有的 <span> 标签并拼接文本
-            StringBuilder textBuilder = new StringBuilder();
-            for (Element span : paragraph.select("span")) {
-                textBuilder.append(span.text());
+                // 获取 <p> 标签下所有的 <span> 标签并拼接文本
+                StringBuilder textBuilder = new StringBuilder();
+                for (Element span : paragraph.select("span")) {
+                    textBuilder.append(span.text());
+                }
+
+                // 将拼接结果存入 map
+                result.put(key, textBuilder.toString());
             }
-
-            // 将拼接结果存入 map
-            result.put(key, textBuilder.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
         return result;
     }
 
@@ -85,9 +91,9 @@ public class ContentVerificationToHtml {
         // 按照 pIndex 分组 mistakes
         Map<Integer, List<CheckResponse.Result.Mistake>> mistakesGroupedByPIndex = mistakes.stream()
                 .collect(Collectors.groupingBy(CheckResponse.Result.Mistake::getPIndex));
-        List<ParagraphElement> paragraphElements =new ArrayList<>();
+        List<ParagraphElement> paragraphElements = new ArrayList<>();
         for (DocumentElement documentElement : documentElements) {
-            if(documentElement instanceof ParagraphElement){
+            if (documentElement instanceof ParagraphElement) {
                 paragraphElements.add((ParagraphElement) documentElement);
             }
         }

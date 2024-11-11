@@ -255,6 +255,6 @@ public class FileController {
         Files.copy(file.getInputStream(), jsonFilePath);
 
         // 返回更新结果
-        return fileService.htmlToDoc(id,directory.toString());
+        return fileService.htmlToDoc(id,directory+File.separator+originalFilename);
     }
 }

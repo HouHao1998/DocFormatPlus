@@ -38,7 +38,13 @@ import static com.doc.format.util.spire.JsonToWord.removeTite;
 public class WordRevisionTest {
 
     public static String getDocumentElements(String docxFilePath, String htmlFilePath) {
-        String output = docxFilePath.replace(".docx", "_文字检查完成.docx");
+        String output ="";
+        if(docxFilePath.endsWith(".docx") ){
+            output =  docxFilePath.replace(".docx", "_文字检查完成.docx");
+
+        }else  if(docxFilePath.endsWith(".doc") ){
+            output = docxFilePath.replace(".doc", "_文字检查完成.doc");
+        }
         Map<String, String> map = extractProofData(htmlFilePath);
         // 加载测试文档
         Document document = new Document(docxFilePath);
@@ -69,14 +75,14 @@ public class WordRevisionTest {
                 }
             }
 
-
-            document.saveToFile(output, FileFormat.Docx_2013);
-            try {
-                removeTite(output);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
+        document.saveToFile(output, FileFormat.Docx_2013);
+        try {
+            removeTite(output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         return output;
     }
 

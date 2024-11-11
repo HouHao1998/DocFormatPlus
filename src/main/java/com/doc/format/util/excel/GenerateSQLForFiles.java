@@ -53,6 +53,10 @@ public class GenerateSQLForFiles {
 
             for (File file : files) {
                 if (file.isFile()) {
+                    String fileName = file.getName();
+                    if (!fileName.endsWith(".xlsx")) {
+                      continue;
+                    }
                     // 根据文件名找到对应的ReportTemplate对象
                     ReportTemplate matchingTemplate = findTemplateByName(file.getName(), reportTemplates);
                     if (matchingTemplate != null) {
