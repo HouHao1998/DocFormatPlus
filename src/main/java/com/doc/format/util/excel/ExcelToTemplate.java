@@ -29,30 +29,29 @@ public class ExcelToTemplate {
         String OUTPUT_JSON_FILE_PATH = "/Users/houhao/Downloads/report_templates.json";  // 更新后的JSON文件路径
         long snCounter = 80012409111101001L;  // 初始SN值
         long groupSn = 8009240809140002L;  // 初始SN值
-        excelToTemplate(SQL_FILE_PATH, JSON_FILE_PATH, OUTPUT_JSON_FILE_PATH, snCounter, groupSn);
+        excelToTemplate(SQL_FILE_PATH, JSON_FILE_PATH, OUTPUT_JSON_FILE_PATH, groupSn);
     }
 
-    public static void excelToTemplate(String SQL_FILE_PATH, String JSON_FILE_PATH, String OUTPUT_JSON_FILE_PATH, long snCounter, long groupSn) {
+    public static void excelToTemplate(String SQL_FILE_PATH, String JSON_FILE_PATH, String OUTPUT_JSON_FILE_PATH, long groupSn) {
         try (BufferedWriter sqlWriter = new BufferedWriter(new FileWriter(SQL_FILE_PATH))) {
             // 读取并加载JSON文件
             List<ReportTemplate> reportTemplates = loadReportTemplates(JSON_FILE_PATH);
 
             for (ReportTemplate template : reportTemplates) {
                 // 使用json中的name 和 template_file_sn生成SQL
-                String sql = generateSQL(template.getName(), template.getFileSn(), snCounter, groupSn, template.getSourceDataset(), template.getDetailTable());
+                String sql = generateSQL(template.getName(), template.getFileSn(), Long.parseLong(template.getSn()), groupSn, template.getSourceDataset(), template.getDetailTable());
                 // 写入SQL到文件
-                sqlWriter.write("DELETE from report_template where sn = " + snCounter + ";");
+                sqlWriter.write("DELETE from report_template where sn = " + Long.parseLong(template.getSn()) + ";");
                 sqlWriter.write(sql);
                 sqlWriter.newLine();
 
                 // 更新sn
-                template.setTemplateSn(snCounter);
+                template.setTemplateSn(Long.parseLong(template.getSn()));
 
                 // 输出到控制台
                 System.out.println(sql);
 
-                // 自增sn
-                snCounter++;
+
             }
 
             // 保存更新后的JSON文件，包含templateSn

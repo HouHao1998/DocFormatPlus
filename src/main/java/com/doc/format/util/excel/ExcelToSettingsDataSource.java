@@ -56,7 +56,7 @@ public class ExcelToSettingsDataSource {
     }
 
 
-    public static void settingsDataSourceForFolder(String folderPath, String jsonFilePath, String sqlFilePath, long snCounter, String groupSn, String groupName) {
+    public static void settingsDataSourceForFolder(String folderPath, String jsonFilePath, String sqlFilePath, String groupSn, String groupName) {
         List<ReportTemplate> reportTemplates = new LinkedList<>();
         File folder = new File(folderPath);
         File[] files = folder.listFiles((dir, name) -> name.endsWith(".xlsx") || name.endsWith(".xls"));
@@ -90,7 +90,7 @@ public class ExcelToSettingsDataSource {
                     // 解析统计表的字段信息
                     parseStatFields(statSheet, statFields);
 
-                    // 解析明细表的字段信息，同时区分是否为数据生成字段
+                    // 解析明细表的字段信息，同时区分是否为数据生成字段1
                     parseDetailAndGenFields(detailSheet, detailFields, genFields);
 
                     // 创建ReportTemplate并设置属性
@@ -98,7 +98,17 @@ public class ExcelToSettingsDataSource {
                     reportTemplate.setName(fileNameWithoutExtension);
                     reportTemplate.setCode(chineseToPinyin(fileNameWithoutExtension));
                     reportTemplate.setDetailTable(detailTable.replaceAll("\\s+", ""));
-
+                    String snStr;
+                    Cell cell = projectSheet.getRow(2).getCell(1);
+                    if (cell.getCellType() == CellType.STRING) {
+                        snStr = cell.getStringCellValue();
+                    } else if (cell.getCellType() == CellType.NUMERIC) {
+                        snStr = String.valueOf((int) cell.getNumericCellValue()); // 将数值转为整数再转字符串
+                    } else {
+                        snStr = ""; // 或者根据需求处理其他情况
+                    }
+                    reportTemplate.setSn(snStr);
+                    Long snCounter =1110L;
                     // 生成SQL并创建ReportTemplate
                     for (DataSourceSQL dataSourceSQL : dataSourceSQLList) {
                         if (StringUtils.isEmpty(dataSourceSQL.getSqlExpression())) {
@@ -106,7 +116,7 @@ public class ExcelToSettingsDataSource {
                         }
                         List<Field> fields = new LinkedList<>();
                         ReportDataSource reportDataSource = new ReportDataSource();
-                        reportDataSource.setDataSourceSn(snCounter);
+                        reportDataSource.setDataSourceSn(Long.parseLong(snCounter+snStr));
                         reportDataSource.setCode(chineseToPinyin(dataSourceSQL.getDataSourceName()));
                         reportDataSource.setName(dataSourceSQL.getDataSourceName());
 
@@ -136,9 +146,9 @@ public class ExcelToSettingsDataSource {
                         }
                         List<FilterField> filterFields = JSON.parseArray(optionalField, FilterField.class);
                         reportDataSource.setFilterField(filterFields);
-                        sqlWriter.write("DELETE from settings_data_source where sn = " + snCounter + ";");
+                        sqlWriter.write("DELETE from settings_data_source where sn = " + snCounter+snStr + ";");
                         // 生成 SQL 语句
-                        String sql = generateInsertSQL(dataType, dataSourceSQL.getDataSourceName(), dataSourceSQL.getSqlExpression(), optionalField, fields, snCounter, groupSn, groupName, result_type);
+                        String sql = generateInsertSQL(dataType, dataSourceSQL.getDataSourceName(), dataSourceSQL.getSqlExpression(), optionalField, fields, Long.parseLong(snCounter+snStr), groupSn, groupName, result_type);
                         System.out.println(sql);  // 打印生成的 SQL
 
                         // 保存 SQL 到文件

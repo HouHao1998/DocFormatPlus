@@ -35,10 +35,10 @@ public class GenerateSQLForFiles {
         String sqlFilePath = "/Users/houhao/Downloads/minIo脚本.txt";  // SQL文件路径
         String ORIGIN_URL_PREFIX = "http://10.196.25.93:9000/saas/display/waijie/";  // origin_url前缀
         long fileSn = 5097652704810301L;
-        excelToFileSql(ORIGIN_URL_PREFIX, sqlFilePath, fileSn, jsonFilePath, outputJsonFilePath, BASE_FOLDER);
+        excelToFileSql(ORIGIN_URL_PREFIX, sqlFilePath, jsonFilePath, outputJsonFilePath, BASE_FOLDER);
     }
 
-    public static void excelToFileSql(String ORIGIN_URL_PREFIX, String sqlFilePath, long fileSn, String jsonFilePath, String outputJsonFilePath, String BASE_FOLDER) {
+    public static void excelToFileSql(String ORIGIN_URL_PREFIX, String sqlFilePath, String jsonFilePath, String outputJsonFilePath, String BASE_FOLDER) {
         try (BufferedWriter sqlWriter = new BufferedWriter(new FileWriter(sqlFilePath))) {
             // 读取并加载JSON文件
             List<ReportTemplate> reportTemplates = loadReportTemplates(jsonFilePath);
@@ -60,22 +60,20 @@ public class GenerateSQLForFiles {
                     // 根据文件名找到对应的ReportTemplate对象
                     ReportTemplate matchingTemplate = findTemplateByName(file.getName(), reportTemplates);
                     if (matchingTemplate != null) {
-                        // 更新fileSn
-                        matchingTemplate.setFileSn(fileSn);
+                        // 更新fileSn111111
+                        matchingTemplate.setFileSn(Long.parseLong("2222"+matchingTemplate.getSn()));
                     } else {
                         System.out.println("没有找到与文件名匹配的模板: " + file.getName());
                     }
-                    sqlWriter.write("DELETE from common_attachment where file_sn = " + fileSn + ";");
+                    sqlWriter.write("DELETE from common_attachment where file_sn = " + "2222"+matchingTemplate.getSn() + ";");
                     // 生成SQL
-                    String sql = generateSQL(ORIGIN_URL_PREFIX, file, fileSn);
+                    String sql = generateSQL(ORIGIN_URL_PREFIX, file, Long.parseLong("2222"+matchingTemplate.getSn()));
                     // 写入SQL到文件
                     sqlWriter.write(sql);
                     sqlWriter.newLine();
                     // 输出到控制台
                     System.out.println(sql);
 
-                    // 自增sn
-                    fileSn++;
                 }
             }
 

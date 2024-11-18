@@ -30,18 +30,18 @@ public class ExcelToTemplateConfig {
         String SQL_FILE_PATH = "/Users/houhao/Downloads/report_template_config脚本.txt";  // SQL文件路径
         String JSON_FILE_PATH = "/Users/houhao/Downloads/report_templates.json";  // JSON文件路径
         long snCounter = 80012409111190001L;  // 初始SN值
-        excelToTemplateConfig(SQL_FILE_PATH, JSON_FILE_PATH, snCounter);
+        excelToTemplateConfig(SQL_FILE_PATH, JSON_FILE_PATH);
     }
 
-    public static void excelToTemplateConfig(String SQL_FILE_PATH, String JSON_FILE_PATH, long snCounter) {
+    public static void excelToTemplateConfig(String SQL_FILE_PATH, String JSON_FILE_PATH) {
         try (BufferedWriter sqlWriter = new BufferedWriter(new FileWriter(SQL_FILE_PATH))) {
             // 读取并加载JSON文件
             List<ReportTemplate> reportTemplates = loadReportTemplates(JSON_FILE_PATH);
 
             for (ReportTemplate template : reportTemplates) {
                 // 生成SQL语句
-                String sql = generateSQL(template, snCounter);
-                sqlWriter.write("DELETE from report_template_config where sn = " + snCounter + ";");
+                String sql = generateSQL(template, Long.parseLong("3333"+template.getSn()));
+                sqlWriter.write("DELETE from report_template_config where sn = " + Long.parseLong("3333"+template.getSn()) + ";");
                 // 写入SQL到文件
                 sqlWriter.write(sql);
                 sqlWriter.newLine();
@@ -49,8 +49,6 @@ public class ExcelToTemplateConfig {
                 // 输出到控制台
                 System.out.println(sql);
 
-                // 自增sn
-                snCounter++;
             }
 
             System.out.println("SQL脚本已保存到: " + SQL_FILE_PATH);
@@ -164,7 +162,7 @@ public class ExcelToTemplateConfig {
             if (drilling == 1) {
                 drillingConfig = new ReportDatasetConf.Drilling();
                 // 设置 drillingConfig 的详细信息
-                drillingConfig.setDataset(template.getStatDataSource().getCode());
+                drillingConfig.setDataset("下级".equals(field.getDrillType()) ?template.getStatDataSource().getCode():template.getDetailDataSource().getCode());
                 drillingConfig.setType("下级".equals(field.getDrillType()) ? "subordinate" : "detailed");
                 Map<String, String> map = new HashMap<>();
                 if (field.getDrillOptionalParam() != null && !field.getDrillOptionalParam().isEmpty()) {

@@ -393,7 +393,7 @@ public class DocumentFormatter {
                     content.put(ContentFields.CHINESE_ABSTRACT.getFieldName(), chineseAbstract);
                 } else if (text.startsWith("关键词")) {
                     Map<String, String> chineseKeywords = (Map<String, String>) content.get(ContentFields.CHINESE_KEYWORDS.getFieldName());
-                    chineseKeywords.put("内容", text.substring(4).trim());
+                    chineseKeywords.put("内容", text.trim());
                     content.put(ContentFields.CHINESE_KEYWORDS.getFieldName(), chineseKeywords);
                     break;
                 }

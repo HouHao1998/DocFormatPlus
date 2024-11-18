@@ -20,6 +20,7 @@ import java.util.List;
 @Data
 public class ReportTemplate {
     private String code;
+    private String sn;
     private String name;
     private long fileSn;
     private long templateSn;
