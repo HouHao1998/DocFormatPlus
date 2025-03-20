@@ -90,7 +90,7 @@ public class ExcelToSettingsDataSource {
                     // 解析统计表的字段信息
                     parseStatFields(statSheet, statFields);
 
-                    // 解析明细表的字段信息，同时区分是否为数据生成字段1
+                    // 解析明细表的字段信息，同时区分是否为数据生成字段
                     parseDetailAndGenFields(detailSheet, detailFields, genFields);
 
                     // 创建ReportTemplate并设置属性
@@ -103,12 +103,12 @@ public class ExcelToSettingsDataSource {
                     if (cell.getCellType() == CellType.STRING) {
                         snStr = cell.getStringCellValue();
                     } else if (cell.getCellType() == CellType.NUMERIC) {
-                        snStr = String.valueOf((int) cell.getNumericCellValue()); // 将数值转为整数再转字符串
+                        snStr = String.valueOf((long) cell.getNumericCellValue()); // 将数值转为整数再转字符串
                     } else {
                         snStr = ""; // 或者根据需求处理其他情况
                     }
                     reportTemplate.setSn(snStr);
-                    Long snCounter =1110L;
+                    Long snCounter = 1110L;
                     // 生成SQL并创建ReportTemplate
                     for (DataSourceSQL dataSourceSQL : dataSourceSQLList) {
                         if (StringUtils.isEmpty(dataSourceSQL.getSqlExpression())) {
@@ -116,7 +116,7 @@ public class ExcelToSettingsDataSource {
                         }
                         List<Field> fields = new LinkedList<>();
                         ReportDataSource reportDataSource = new ReportDataSource();
-                        reportDataSource.setDataSourceSn(Long.parseLong(snCounter+snStr));
+                        reportDataSource.setDataSourceSn(Long.parseLong(snCounter + snStr));
                         reportDataSource.setCode(chineseToPinyin(dataSourceSQL.getDataSourceName()));
                         reportDataSource.setName(dataSourceSQL.getDataSourceName());
 
@@ -146,9 +146,9 @@ public class ExcelToSettingsDataSource {
                         }
                         List<FilterField> filterFields = JSON.parseArray(optionalField, FilterField.class);
                         reportDataSource.setFilterField(filterFields);
-                        sqlWriter.write("DELETE from settings_data_source where sn = " + snCounter+snStr + ";");
+                        sqlWriter.write("DELETE from settings_data_source where sn = " + snCounter + snStr + ";");
                         // 生成 SQL 语句
-                        String sql = generateInsertSQL(dataType, dataSourceSQL.getDataSourceName(), dataSourceSQL.getSqlExpression(), optionalField, fields, Long.parseLong(snCounter+snStr), groupSn, groupName, result_type);
+                        String sql = generateInsertSQL(dataType, dataSourceSQL.getDataSourceName(), dataSourceSQL.getSqlExpression(), optionalField, fields, Long.parseLong(snCounter + snStr), groupSn, groupName, result_type);
                         System.out.println(sql);  // 打印生成的 SQL
 
                         // 保存 SQL 到文件
@@ -496,7 +496,7 @@ public class ExcelToSettingsDataSource {
                         + "( %d, '%s', '%s', 'JDBC', %s, '%s', 'WORKBENCH,REPORT,REPORT_FORM', NULL, "
                         + "'POST', NULL, '%s', 'add_time', '%s', '%s', NULL, '%s', '%s', 1, 'sysadmin', "
                         + "'2024-09-02 16:06:40', 'sysadmin', '2024-09-02 16:06:40', 0, '[]', NULL);",
-                sn, dataSourceName, chineseToPinyin(dataSourceName), groupSn, groupName, dataType, result_type, optionalField, fieldJson, sqlExpression.replace("'", "\\'"));
+                sn, dataSourceName, chineseToPinyin(dataSourceName) + sn, groupSn, groupName, dataType, result_type, optionalField, fieldJson, sqlExpression.replace("'", "\\'"));
     }
 
 

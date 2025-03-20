@@ -7,15 +7,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.doc.format.util.entity.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spire.doc.Body;
+import com.spire.doc.Document;
+import com.spire.doc.DocumentObject;
+import com.spire.doc.documents.Paragraph;
 
 /**
  * <b>请输入名称</b>
@@ -256,7 +258,8 @@ public class ProofreadingUtil {
             }
         }
     }
-    public static List<DocumentElement> pathToDocumentElements(String path)  {
+
+    public static List<DocumentElement> pathToDocumentElements(String path) {
         ObjectMapper objectMapper = new ObjectMapper();
         File file = new File(path);
         List<DocumentElement> documentElements = null;
@@ -297,6 +300,43 @@ public class ProofreadingUtil {
             elements.add(element);
         }
         return elements;
+    }
+
+    public static void main(String[] args) throws Exception {
+        String accessToken = TokenUtil.getAccessToken();
+        //判断文档是否有修改
+        String documentElements = getDocumentElements("/Users/houhao/Documents/论文要求/论文测试样例/30 检测认证 2024.03.0114-棉、聚酰胺纤维和氨纶混纺面料定量分析研究.doc");
+        CheckResponse checkResponse = checkText(accessToken, new CheckRequest(documentElements));
+        System.out.println(JSON.toJSONString(checkResponse));
+    }
+
+    public static String getDocumentElements(String filePath) {
+        // 加载测试文档
+        Document document = new Document(filePath);
+        //判断文档是否有修改
+        if (document.hasChanges()) {
+            //接受修订
+            document.acceptChanges();
+        }
+        StringBuilder text = new StringBuilder();
+
+        // 循环遍历各个节
+        for (int i = 0; i < document.getSections().getCount(); i++) {
+
+            Body body = document.getSections().get(i).getBody();
+            // 循环遍历特定节的段落
+            for (int j = 0; j < body.getChildObjects().getCount(); j++) {
+                DocumentObject documentObject = body.getChildObjects().get(j);
+                if (documentObject instanceof Paragraph) {
+                    // 获取特定段落
+                    Paragraph paragraph = (Paragraph) documentObject;
+                    text.append(paragraph.getText()).append("\n");
+
+                }
+            }
+
+        }
+        return text.toString();
     }
 }
 

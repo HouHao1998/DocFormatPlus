@@ -1,19 +1,7 @@
 package com.doc.format.util.spire;
 
-import com.doc.format.util.docx4j.JsonToHtmlConverter;
 import com.doc.format.util.entity.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spire.doc.*;
-import com.spire.doc.documents.Paragraph;
-import com.spire.doc.documents.UnderlineStyle;
-import com.spire.doc.fields.DocPicture;
-import com.spire.doc.fields.Field;
-import com.spire.doc.fields.TextRange;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -115,6 +103,7 @@ public class DocumentFormatChecker {
         }
         index++;
 
+
         // 遍历剩下的段落，检测摘要、关键词、以及英文内容
         for (; index < documentElements.size(); index++) {
             DocumentElement element = documentElements.get(index);
@@ -133,7 +122,7 @@ public class DocumentFormatChecker {
                 }
             }
         }
-
+        Integer startIndex = index;
         // 继续遍历剩余的英文摘要和关键词段落
         for (; index < documentElements.size(); index++) {
             DocumentElement element = documentElements.get(index);
@@ -146,21 +135,21 @@ public class DocumentFormatChecker {
             }
         }
         //判断段落主体是否符合要求
-        checkContentSections(documentElements, validationResults);
+        checkContentSections(documentElements, validationResults, startIndex);
         //检测插图和表格的编号和标题
-        checkTableAndImageCaptions(documentElements, validationResults);
+        checkTableAndImageCaptions(documentElements, validationResults, startIndex);
         //检测参考文献的标题和内容
-        checkReferences(documentElements, validationResults);
+        checkReferences(documentElements, validationResults, startIndex);
 
     }
 
     /**
      * 检测参考文献的标题和内容
      */
-    public static void checkReferences(List<DocumentElement> documentElements, List<ValidationResult> validationResults) {
+    public static void checkReferences(List<DocumentElement> documentElements, List<ValidationResult> validationResults, int startIndex) {
         boolean foundReferenceTitle = false;
 
-        for (int i = 0; i < documentElements.size(); i++) {
+        for (int i = startIndex; i < documentElements.size(); i++) {
             DocumentElement element = documentElements.get(i);
             if (element instanceof ParagraphElement) {
                 ParagraphElement paragraph = (ParagraphElement) element;
@@ -205,8 +194,8 @@ public class DocumentFormatChecker {
     /**
      * 检测插图和表格的编号和标题
      */
-    public static void checkTableAndImageCaptions(List<DocumentElement> documentElements, List<ValidationResult> validationResults) {
-        for (int i = 0; i < documentElements.size(); i++) {
+    public static void checkTableAndImageCaptions(List<DocumentElement> documentElements, List<ValidationResult> validationResults, int startIndex) {
+        for (int i = startIndex; i < documentElements.size(); i++) {
             DocumentElement element = documentElements.get(i);
             if (element instanceof ParagraphElement) {
                 ParagraphElement paragraph = (ParagraphElement) element;
@@ -559,8 +548,8 @@ public class DocumentFormatChecker {
     /**
      * 检测引言、主体、结论的段落信息
      */
-    public static void checkContentSections(List<DocumentElement> documentElements, List<ValidationResult> validationResults) {
-        for (int i = 0; i < documentElements.size(); i++) {
+    public static void checkContentSections(List<DocumentElement> documentElements, List<ValidationResult> validationResults, int startIndex) {
+        for (int i = startIndex; i < documentElements.size(); i++) {
             DocumentElement element = documentElements.get(i);
             if (element instanceof ParagraphElement) {
                 ParagraphElement paragraph = (ParagraphElement) element;

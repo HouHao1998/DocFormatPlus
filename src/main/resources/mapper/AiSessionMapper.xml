@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.doc.format.mapper.AiSessionMapper">
+
+    <!-- AI对话会话查询 -->
+    <select id="getList" resultType="com.doc.format.vo.AiSessionListVo"
+            parameterType="com.doc.format.bo.AiSessionQueryBo">
+        SELECT
+                    id,
+                            user_id,
+                            session_name,
+                            creator,
+                            updater,
+                            create_time,
+                            update_time,
+                            deleted                FROM ai_session
+        <where>
+                                                <if test="queryBo.id != null ">
+                        and id =
+                        #{queryBo.id}
+                    </if>
+                                                                <if test="queryBo.userId != null ">
+                        and user_id =
+                        #{queryBo.userId}
+                    </if>
+                                                                <if test="queryBo.sessionName != null and queryBo.sessionName != ''">
+                        <bind name="sessionNameLikeValue"
+                              value="'%' + queryBo.sessionName + '%'"/>
+                        and session_name like
+                        #{sessionNameLikeValue}
+                    </if>
+                                                                <if test="queryBo.creator != null and queryBo.creator != ''">
+                        <bind name="creatorLikeValue"
+                              value="'%' + queryBo.creator + '%'"/>
+                        and creator like
+                        #{creatorLikeValue}
+                    </if>
+                                                                <if test="queryBo.updater != null and queryBo.updater != ''">
+                        <bind name="updaterLikeValue"
+                              value="'%' + queryBo.updater + '%'"/>
+                        and updater like
+                        #{updaterLikeValue}
+                    </if>
+                                                                <if test="queryBo.createTime != null ">
+                        and create_time =
+                        #{queryBo.createTime}
+                    </if>
+                                                                <if test="queryBo.updateTime != null ">
+                        and update_time =
+                        #{queryBo.updateTime}
+                    </if>
+                                                                <if test="queryBo.deleted != null ">
+                        and deleted =
+                        #{queryBo.deleted}
+                    </if>
+                                    </where>
+    </select>
+</mapper>

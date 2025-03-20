@@ -27,7 +27,7 @@ import java.util.List;
 public class JsonToWord {
     public static void main(String[] args) {
         String filePath = "/Users/houhao/Documents/论文要求/论文测试样例/30 检测认证 2024.03.0114-棉、聚酰胺纤维和氨纶混纺面料定量分析研究.doc";
-        String jsonResult = "/Users/houhao/Downloads/word/9d150664-8786-40a3-a4c1-9719c44c9ce1/validationResults.json";
+        String jsonResult = "/Users/houhao/Downloads/word/9d150664-8786-40a3-a4c1-9719c44c9ce1/按照格式分组的JSON.json";
         try {
             jsonToWord(filePath, jsonResult, true);
 
@@ -64,8 +64,11 @@ public class JsonToWord {
         return outputFilePath;
 
 
-    }/**
+    }
+
+    /**
      * 去除word文档的标题
+     *
      * @param outputFilePath 输出文件路径
      * @throws IOException
      */
@@ -129,7 +132,8 @@ public class JsonToWord {
 
                 // 遍历 ValidationResult 中的 TextElement
                 for (TextElement textElement : result.getTextElements()) {
-                    int childObjectsIndex = textElement.getChildObjectsIndex();  // 文字元素的索引
+                    // 文字元素的索引
+                    int childObjectsIndex = textElement.getChildObjectsIndex();
 
                     if (childObjectsIndex < paragraph.getChildObjects().getCount()) {
                         DocumentObject obj = paragraph.getChildObjects().get(childObjectsIndex);
@@ -138,7 +142,7 @@ public class JsonToWord {
                         if (obj instanceof TextRange) {
                             TextRange textRange = (TextRange) obj;
 
-                            // 根据参数决定使用哪种字体和字号
+                            // 根据参数决定使用哪种字体和字号1
                             if (isAddPicture) {
                                 // 使用枚举中的字体和字号
                                 ContentType contentType = ContentType.valueOf(result.getTypeName());
@@ -156,10 +160,8 @@ public class JsonToWord {
                             }
                         }
                     }
-
                 }
             }
         }
     }
-
 }

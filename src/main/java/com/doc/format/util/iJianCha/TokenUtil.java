@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 public class TokenUtil {
 
     private static final String API_TOKEN_URL = "https://www.ijiaodui.com:8080/component/v1/api_token";
-    private static final String APP_ID = "7RnhnRAfRxQZGplxaE9T6oMNcnClngbg";
-    private static final String APP_SECRET = "zJA8JSkBLtULPNWFRDHC49B4GLCOqQZ2";
+    private static final String APP_ID = "EyjUrJhkSoNKRXjhVXyIPo0iefMHeG4Q";
+    private static final String APP_SECRET = "GlE07lhORGIdRVDso3ITD4Q577szZAnB";
     private static final int TOKEN_VALIDITY = 7200; // Token有效期为7200秒（2小时）
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static String accessToken;

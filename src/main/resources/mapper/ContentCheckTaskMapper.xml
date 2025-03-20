@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.doc.format.mapper.ContentCheckTaskMapper">
+
+    <!-- 内容校验任务查询 -->
+    <select id="getList" resultType="com.doc.format.vo.ContentCheckTaskListVo"
+            parameterType="com.doc.format.bo.ContentCheckTaskQueryBo">
+        SELECT
+                    id,
+                            user_id,
+                            original_file,
+                            parsed_text,
+                            check_result,
+                            checked_file,
+                            check_token,
+                            format_task_id,
+                            task_status,
+                            creator,
+                            updater,
+                            create_time,
+                            update_time,
+                            deleted                FROM content_check_task
+        <where>
+                                                <if test="queryBo.id != null ">
+                        and id =
+                        #{queryBo.id}
+                    </if>
+                                                                <if test="queryBo.userId != null ">
+                        and user_id =
+                        #{queryBo.userId}
+                    </if>
+                                                                <if test="queryBo.originalFile != null and queryBo.originalFile != ''">
+                        <bind name="originalFileLikeValue"
+                              value="'%' + queryBo.originalFile + '%'"/>
+                        and original_file like
+                        #{originalFileLikeValue}
+                    </if>
+                                                                <if test="queryBo.parsedText != null and queryBo.parsedText != ''">
+                        <bind name="parsedTextLikeValue"
+                              value="'%' + queryBo.parsedText + '%'"/>
+                        and parsed_text like
+                        #{parsedTextLikeValue}
+                    </if>
+                                                                <if test="queryBo.checkResult != null and queryBo.checkResult != ''">
+                        <bind name="checkResultLikeValue"
+                              value="'%' + queryBo.checkResult + '%'"/>
+                        and check_result like
+                        #{checkResultLikeValue}
+                    </if>
+                                                                <if test="queryBo.checkedFile != null and queryBo.checkedFile != ''">
+                        <bind name="checkedFileLikeValue"
+                              value="'%' + queryBo.checkedFile + '%'"/>
+                        and checked_file like
+                        #{checkedFileLikeValue}
+                    </if>
+                                                                <if test="queryBo.checkToken != null ">
+                        and check_token =
+                        #{queryBo.checkToken}
+                    </if>
+                                                                <if test="queryBo.formatTaskId != null ">
+                        and format_task_id =
+                        #{queryBo.formatTaskId}
+                    </if>
+                                                                <if test="queryBo.taskStatus != null ">
+                        and task_status =
+                        #{queryBo.taskStatus}
+                    </if>
+                                                                <if test="queryBo.creator != null and queryBo.creator != ''">
+                        <bind name="creatorLikeValue"
+                              value="'%' + queryBo.creator + '%'"/>
+                        and creator like
+                        #{creatorLikeValue}
+                    </if>
+                                                                <if test="queryBo.updater != null and queryBo.updater != ''">
+                        <bind name="updaterLikeValue"
+                              value="'%' + queryBo.updater + '%'"/>
+                        and updater like
+                        #{updaterLikeValue}
+                    </if>
+                                                                <if test="queryBo.createTime != null ">
+                        and create_time =
+                        #{queryBo.createTime}
+                    </if>
+                                                                <if test="queryBo.updateTime != null ">
+                        and update_time =
+                        #{queryBo.updateTime}
+                    </if>
+                                                                <if test="queryBo.deleted != null ">
+                        and deleted =
+                        #{queryBo.deleted}
+                    </if>
+                                    </where>
+    </select>
+</mapper>

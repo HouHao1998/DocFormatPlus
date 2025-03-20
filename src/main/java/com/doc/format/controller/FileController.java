@@ -105,7 +105,7 @@ public class FileController {
             fileType = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
         // 确保上传的是 .doc 或 .docx 文件
-        if (originalFilename != null && !(originalFilename.endsWith(".doc") || originalFilename.endsWith(".docx"))) {
+        if (originalFilename == null || !(originalFilename.endsWith(".doc") || originalFilename.endsWith(".docx"))) {
             return Result.fail("只允许上传 .doc 或 .docx 文件");
         }
 
@@ -233,6 +233,7 @@ public class FileController {
         // 返回更新结果
         return fileService.update(saveBo);
     }
+
     @ApiOperation(value = "校对html生成docx", notes = "校对html生成docx")
     @PostMapping("/htmlToDoc/{id}")
     public Result<String> htmlToDoc(@PathVariable("id") long id, @RequestParam("file") MultipartFile file) throws IOException {
@@ -255,6 +256,31 @@ public class FileController {
         Files.copy(file.getInputStream(), jsonFilePath);
 
         // 返回更新结果
-        return fileService.htmlToDoc(id,directory+File.separator+originalFilename);
+        return fileService.htmlToDoc(id, directory + File.separator + originalFilename);
+    }
+
+    @ApiOperation(value = "在线文字校验", notes = "在线文字校验")
+    @PostMapping("/onlineCheck")
+    public Result<String> onlineCheck(@RequestParam("file") MultipartFile file) throws IOException {
+        // 检查文件是否为空
+        if (file.isEmpty()) {
+            return Result.fail("上传的文件不能为空");
+        }
+
+        // 获取上传文件的原始文件名
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && !(originalFilename.endsWith(".doc") || originalFilename.endsWith(".docx"))) {
+            return Result.fail("只允许上传 .doc 或 .docx 文件");
+        }
+
+        // 创建上传文件的路径
+        UUID uuid = UUID.randomUUID();
+        Path directory = Paths.get(uploadDir + File.separator + uuid.toString());
+        Files.createDirectories(directory);  // 确保目录存在
+        Path jsonFilePath = directory.resolve(originalFilename);
+        Files.copy(file.getInputStream(), jsonFilePath);
+
+        // 返回更新结果
+        return fileService.onlineCheck(directory + File.separator + originalFilename, uuid);
     }
 }

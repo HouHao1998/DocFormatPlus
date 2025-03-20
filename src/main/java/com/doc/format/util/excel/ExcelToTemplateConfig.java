@@ -40,8 +40,8 @@ public class ExcelToTemplateConfig {
 
             for (ReportTemplate template : reportTemplates) {
                 // 生成SQL语句
-                String sql = generateSQL(template, Long.parseLong("3333"+template.getSn()));
-                sqlWriter.write("DELETE from report_template_config where sn = " + Long.parseLong("3333"+template.getSn()) + ";");
+                String sql = generateSQL(template, Long.parseLong("3333" + template.getSn()));
+                sqlWriter.write("DELETE from report_template_config where sn = " + Long.parseLong("3333" + template.getSn()) + ";");
                 // 写入SQL到文件
                 sqlWriter.write(sql);
                 sqlWriter.newLine();
@@ -162,7 +162,7 @@ public class ExcelToTemplateConfig {
             if (drilling == 1) {
                 drillingConfig = new ReportDatasetConf.Drilling();
                 // 设置 drillingConfig 的详细信息
-                drillingConfig.setDataset("下级".equals(field.getDrillType()) ?template.getStatDataSource().getCode():template.getDetailDataSource().getCode());
+                drillingConfig.setDataset("下级".equals(field.getDrillType()) ? template.getStatDataSource().getCode() : template.getDetailDataSource().getCode());
                 drillingConfig.setType("下级".equals(field.getDrillType()) ? "subordinate" : "detailed");
                 Map<String, String> map = new HashMap<>();
                 if (field.getDrillOptionalParam() != null && !field.getDrillOptionalParam().isEmpty()) {

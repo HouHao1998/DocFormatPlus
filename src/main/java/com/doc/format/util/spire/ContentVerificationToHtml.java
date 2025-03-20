@@ -8,6 +8,8 @@ import org.docx4j.wml.P;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
@@ -49,7 +51,7 @@ public class ContentVerificationToHtml {
             // 使用 Jsoup 解析 HTML
             Document document = Jsoup.parse(htmlContent);
 
-            // 查找所有在 div 下的 <p> 标签
+            // 查找所有在 div 下的 <1p> 标签
             Elements pElements = document.select("div > p");
 
             for (Element paragraph : pElements) {
@@ -60,12 +62,22 @@ public class ContentVerificationToHtml {
                 // 拼接键值
                 String key = dataProofSid + "-" + dataProofPid;
 
-                // 获取 <p> 标签下所有的 <span> 标签并拼接文本
+                // 初始化一个 StringBuilder 来拼接文本内容
                 StringBuilder textBuilder = new StringBuilder();
-                for (Element span : paragraph.select("span")) {
-                    textBuilder.append(span.text());
-                }
 
+                // 遍历 <p> 的所有子节点，保持顺序处理
+                for (Node childNode : paragraph.childNodes()) {
+                    if (childNode instanceof TextNode) {
+                        // 如果是文本节点，直接获取文本内容
+                        textBuilder.append(((TextNode) childNode).text());
+                    } else if (childNode instanceof Element) {
+                        // 如果是子标签，判断是否为 <span> 标签并获取其文本内容
+                        Element element = (Element) childNode;
+                        if (element.tagName().equals("span")) {
+                            textBuilder.append(element.text());
+                        }
+                    }
+                }
                 // 将拼接结果存入 map
                 result.put(key, textBuilder.toString());
             }
@@ -98,7 +110,7 @@ public class ContentVerificationToHtml {
             }
         }
         Elements pElementAll = doc.select("div > p");
-        for (int i = 0, pElementsSize = pElementAll.size(); i < pElementsSize; i++) {
+        for (int i = 0, pElementsSize = pElementAll.size(); i < pElementsSize && i < paragraphElements.size(); i++) {
             Element p = pElementAll.get(i);
             p.attr("data-proof-pid", String.valueOf(paragraphElements.get(i).getParagraphIndex()));
             p.attr("data-proof-sid", String.valueOf(paragraphElements.get(i).getSectionIndex()));
@@ -118,6 +130,7 @@ public class ContentVerificationToHtml {
 
                 // 遍历当前 pIndex 下的所有 mistakes
                 for (int i = 0, mistakesListSize = mistakesList.size(); i < mistakesListSize; i++) {
+                    paragraphText = paragraphText.replace("[NBSP]", " ");
                     CheckResponse.Result.Mistake mistake = mistakesList.get(i);
                     int pl = mistake.getPl();  // 段落中错误位置的左索引
                     int pr = mistake.getPr();  // 段落中错误位置的右索引
@@ -131,6 +144,9 @@ public class ContentVerificationToHtml {
 
                     // 为错误文本添加 custom-underline-red class 的 span
                     String errorText = paragraphText.substring(pl, pr);
+                    if (!(mistake.getErrorText().equals(errorText))) {
+                        System.out.println("对不上 *****" + mistake.getErrorText() + " =====" + errorText);
+                    }
                     Element errorSpan = new Element(Tag.valueOf("span"), "");
                     errorSpan.attr("class", "custom-underline-red idx " + mistake.getIdx());
                     errorSpan.attr("data-proof-id", String.valueOf(mistake.getIdx()));

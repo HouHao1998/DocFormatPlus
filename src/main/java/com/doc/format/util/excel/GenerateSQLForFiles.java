@@ -55,19 +55,19 @@ public class GenerateSQLForFiles {
                 if (file.isFile()) {
                     String fileName = file.getName();
                     if (!fileName.endsWith(".xlsx")) {
-                      continue;
+                        continue;
                     }
                     // 根据文件名找到对应的ReportTemplate对象
                     ReportTemplate matchingTemplate = findTemplateByName(file.getName(), reportTemplates);
                     if (matchingTemplate != null) {
                         // 更新fileSn111111
-                        matchingTemplate.setFileSn(Long.parseLong("2222"+matchingTemplate.getSn()));
+                        matchingTemplate.setFileSn(Long.parseLong("2222" + matchingTemplate.getSn()));
                     } else {
                         System.out.println("没有找到与文件名匹配的模板: " + file.getName());
                     }
-                    sqlWriter.write("DELETE from common_attachment where file_sn = " + "2222"+matchingTemplate.getSn() + ";");
+                    sqlWriter.write("DELETE from common_attachment where file_sn = " + "2222" + matchingTemplate.getSn() + ";");
                     // 生成SQL
-                    String sql = generateSQL(ORIGIN_URL_PREFIX, file, Long.parseLong("2222"+matchingTemplate.getSn()));
+                    String sql = generateSQL(ORIGIN_URL_PREFIX, file, Long.parseLong("2222" + matchingTemplate.getSn()));
                     // 写入SQL到文件
                     sqlWriter.write(sql);
                     sqlWriter.newLine();

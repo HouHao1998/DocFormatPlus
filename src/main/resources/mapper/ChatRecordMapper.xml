@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.doc.format.mapper.ChatRecordMapper">
+
+    <!-- AI对话记录查询 -->
+    <select id="getList" resultType="com.doc.format.vo.ChatRecordListVo"
+            parameterType="com.doc.format.bo.ChatRecordQueryBo">
+        SELECT
+                    id,
+                            session_id,
+                            user_message,
+                            ai_response,
+                            deepseek_token,
+                            check_token,
+                            creator,
+                            updater,
+                            create_time,
+                            update_time,
+                            deleted                FROM chat_record
+        <where>
+                                                <if test="queryBo.id != null ">
+                        and id =
+                        #{queryBo.id}
+                    </if>
+                                                                <if test="queryBo.sessionId != null ">
+                        and session_id =
+                        #{queryBo.sessionId}
+                    </if>
+                                                                <if test="queryBo.userMessage != null and queryBo.userMessage != ''">
+                        <bind name="userMessageLikeValue"
+                              value="'%' + queryBo.userMessage + '%'"/>
+                        and user_message like
+                        #{userMessageLikeValue}
+                    </if>
+                                                                <if test="queryBo.aiResponse != null and queryBo.aiResponse != ''">
+                        <bind name="aiResponseLikeValue"
+                              value="'%' + queryBo.aiResponse + '%'"/>
+                        and ai_response like
+                        #{aiResponseLikeValue}
+                    </if>
+                                                                <if test="queryBo.deepseekToken != null ">
+                        and deepseek_token =
+                        #{queryBo.deepseekToken}
+                    </if>
+                                                                <if test="queryBo.checkToken != null ">
+                        and check_token =
+                        #{queryBo.checkToken}
+                    </if>
+                                                                <if test="queryBo.creator != null and queryBo.creator != ''">
+                        <bind name="creatorLikeValue"
+                              value="'%' + queryBo.creator + '%'"/>
+                        and creator like
+                        #{creatorLikeValue}
+                    </if>
+                                                                <if test="queryBo.updater != null and queryBo.updater != ''">
+                        <bind name="updaterLikeValue"
+                              value="'%' + queryBo.updater + '%'"/>
+                        and updater like
+                        #{updaterLikeValue}
+                    </if>
+                                                                <if test="queryBo.createTime != null ">
+                        and create_time =
+                        #{queryBo.createTime}
+                    </if>
+                                                                <if test="queryBo.updateTime != null ">
+                        and update_time =
+                        #{queryBo.updateTime}
+                    </if>
+                                                                <if test="queryBo.deleted != null ">
+                        and deleted =
+                        #{queryBo.deleted}
+                    </if>
+                                    </where>
+    </select>
+</mapper>

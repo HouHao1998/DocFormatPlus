@@ -216,18 +216,6 @@ public class WordRevision {
         return elements;
     }
 
-    // 将 BufferedImage 转换为 Base64 字符串
-    private static String convertImageToBase64(BufferedImage image) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "png", baos);
-            byte[] bytes = baos.toByteArray();
-            return Base64.getEncoder().encodeToString(bytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     // 将图片保存到指定路径
     private static String saveImage(BufferedImage image, int index) {
@@ -250,15 +238,6 @@ public class WordRevision {
             return "#000000";
         }
         return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
-    }
-
-    private static void writeHtmlToFile(String htmlContent, String filePath) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            writer.write(htmlContent);
-            System.out.println("HTML 文件已成功写入到: " + filePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 

@@ -17,6 +17,7 @@ import com.doc.format.service.IIJianChaService;
 import com.doc.format.util.docx4j.JsonToHtmlConverter;
 import com.doc.format.util.entity.DocumentElement;
 import com.doc.format.util.entity.ParagraphElement;
+import com.doc.format.util.entity.SimplePara;
 import com.doc.format.util.entity.ValidationResult;
 import com.doc.format.util.iJianCha.CheckRequest;
 import com.doc.format.util.iJianCha.CheckResponse;
@@ -26,6 +27,12 @@ import com.doc.format.util.spire.*;
 import com.doc.format.vo.FileDetailVo;
 import com.doc.format.vo.FileListVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -33,14 +40,12 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 import static com.doc.format.util.iJianCha.ProofreadingUtil.parseDocumentElements;
-import static com.doc.format.util.iJianCha.ProofreadingUtil.pathToDocumentElements;
 
 /**
  * 文件总览Service实现类
@@ -53,6 +58,8 @@ import static com.doc.format.util.iJianCha.ProofreadingUtil.pathToDocumentElemen
 public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> implements IFileService {
     @Value("${http.upload.dir}")
     private String httpUploadDir;
+    @Value("${file.upload.dir}")
+    private String fileUploadDir;
     @Resource
     private IIJianChaService iJianChaService;
     @Resource
@@ -110,13 +117,20 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
         String htmlContent = JsonToHtmlConverter.convertToHtml(documentElements);
 
-        // 将 HTML 内容写入文件
-        entity.setJsonHtmlPath(saveJsonToFile(htmlContent, directoryPath, "output.html"));
+        // 将 HTML 内容写入文件1
+        entity.setJsonHtmlPath(saveJsonToFile(htmlContent, directoryPath, "原始WORD解析HTML.html"));
         JsonToHtmlConverter.mapHtmlToJson(htmlContent, documentElements);
-        // 将documentElements转换为JSON并保存到文件中
+        // 将documentElements转换为JSON并保存到文件中1
         String documentElementsJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentElements);
-        String documentElementsFilePath = saveJsonToFile(documentElementsJson, directoryPath, "documentElements.json");
-        entity.setResultJson(documentElementsFilePath); // 只存储文件路径
+        String documentElementsFilePath = saveJsonToFile(documentElementsJson, directoryPath, "WORD解析全面的JSON结构.json");
+        entity.setResultJson(documentElementsFilePath); // 只存储文件路径1
+
+        List<SimplePara> simpleParaList = SimplePara.getSimpleParaList(documentElements);
+        String simpleParaListJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(simpleParaList);
+        saveJsonToFile(simpleParaListJson, directoryPath, "WORD简易的JSON结构.json");
+        List<SimplePara> pageList = SimplePara.getPageList(documentElements);
+        String pageListJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(pageList);
+        saveJsonToFile(pageListJson, directoryPath, "WORD只有段落信息.json");
 
         // 校验文档内容并生成validationResults
         List<ValidationResult> validationResults = new ArrayList<>();
@@ -124,7 +138,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
         // 将validationResults转换为JSON并保存到文件中
         String validationResultsJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(validationResults);
-        String validationResultsFilePath = saveJsonToFile(validationResultsJson, directoryPath, "validationResults.json");
+        String validationResultsFilePath = saveJsonToFile(validationResultsJson, directoryPath, "按照格式分组的JSON.json");
         entity.setValidationResultJson(validationResultsFilePath); // 只存储文件路径
 
         entity.setAddTime(new Date());
@@ -214,18 +228,18 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         // 获取文件目录路径
         String directoryPath = Paths.get(filePath).getParent().toString();
 
-
         String htmlContent = JsonToHtmlConverter.convertToHtml(documentElements);
 
         // 将 HTML 内容写入文件
-        entity.setJsonHtmlPath(saveJsonToFile(htmlContent, directoryPath, "output.html"));
+        entity.setJsonHtmlPath(saveJsonToFile(htmlContent, directoryPath, "原始WORD解析HTML.html"));
         JsonToHtmlConverter.mapHtmlToJson(htmlContent, documentElements);
         baseMapper.insert(entity);
         // 将documentElements转换为JSON并保存到文件中
         String documentElementsJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentElements);
-        String documentElementsFilePath = saveJsonToFile(documentElementsJson, directoryPath, "documentElements.json");
+        String documentElementsFilePath = saveJsonToFile(documentElementsJson, directoryPath, "WORD解析全面的JSON结构.json");
         entity.setResultJson(documentElementsFilePath); // 只存储文件路径
-        List<CheckResponse.Result.Mistake> mistakes = wordBatchCheck(directoryPath + File.separator + "documentElements.json", entity.getId());
+        //通关爱检查把内容映射到html
+        List<CheckResponse.Result.Mistake> mistakes = wordBatchCheck(directoryPath + File.separator + "WORD解析全面的JSON结构.json", entity.getId());
         Map<String, String> levelMap = iJianChaService.getLevelMap();
         Map<String, String> categoriesMap = iJianChaService.getCategoriesMap();
         if (mistakes != null) {
@@ -236,10 +250,11 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
                 }
             }
         }
-        String contentVerificationFilePath = saveJsonToFile(JSON.toJSONString(mistakes), directoryPath, "contentVerification.json");
+        String contentVerificationFilePath = saveJsonToFile(JSON.toJSONString(mistakes), directoryPath, "爱检查校验的.json");
         entity.setAddTime(new Date());
         entity.setContentVerificationJson(contentVerificationFilePath);
         if (htmlPath != null) {
+            //把校验后的内容添加到html文件中
             ContentVerificationToHtml.addIdx(htmlPath, contentVerificationFilePath, documentElements);
             entity.setContentVerificationHtml(htmlPath.replace(".html", "_文件校验后.html"));
         }
@@ -255,6 +270,12 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         }
         String documentElements = WordRevisionTest.getDocumentElements(fileEntity.getFilePath(), htmlPath);
         return Result.success(documentElements);
+    }
+
+    @Override
+    public Result<String> onlineCheck(String s, UUID uuid) {
+
+        return Result.success(JSON.toJSONString(wordBatchCheck(s, uuid.toString())));
     }
 
     /**
@@ -332,6 +353,195 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return Collections.emptyList();
     }
+
+    public Map<String, String> wordBatchCheck(String path, String uuid) {
+        Map<String, String> resultMap = new HashMap<>();
+        try {
+            // 获取 accessToken1
+            String accessToken = TokenUtil.getAccessToken();
+
+            // 读取 HTML 文件内容
+            String htmlContent = Files.readString(Paths.get(path));
+
+            // 解析 HTML 文件内容
+            Document doc = Jsoup.parse(htmlContent);
+
+            // 获取所有 <p> 标签
+            Elements pElements = doc.select("p");
+
+            // 记录每个段落的长度和累积偏移量
+            List<Integer> paragraphLengths = new ArrayList<>();
+            int cumulativeOffset = 0;
+
+            for (Element pElement : pElements) {
+                int length = pElement.text().length();
+                cumulativeOffset += length + 1; // +1 表示段落之间的换行符
+                paragraphLengths.add(cumulativeOffset);
+            }
+
+            // 当前批次处理
+            StringBuilder currentBatch = new StringBuilder();
+            int currentBatchSize = 0;
+            int batchSize = 1000;
+
+            // 存储批次
+            List<BatchItem> batchItems = new ArrayList<>();
+            int currentOffset = 0;
+
+            for (Element pElement : pElements) {
+                String paragraphContent = pElement.text();
+                int paragraphLength = paragraphContent.length();
+
+                if (currentBatchSize + paragraphLength > batchSize) {
+                    batchItems.add(new BatchItem(currentBatch.toString(), currentOffset, new ArrayList<>(pElements)));
+                    currentBatch = new StringBuilder(paragraphContent).append("\n");
+                    currentBatchSize = paragraphLength;
+                    currentOffset += currentBatchSize;
+                } else {
+                    currentBatch.append(paragraphContent).append("\n");
+                    currentBatchSize += paragraphLength;
+                }
+            }
+
+            if (currentBatchSize > 0) {
+                batchItems.add(new BatchItem(currentBatch.toString(), currentOffset, new ArrayList<>(pElements)));
+            }
+
+            // 存储检测结果
+            List<CheckResponse.Result.Mistake> allMistakes = new ArrayList<>();
+            int mistakeIndex = 0;
+
+            for (BatchItem batch : batchItems) {
+                CheckRequest request = new CheckRequest(batch.getText());
+                CheckResponse response = ProofreadingUtil.checkText(accessToken, request);
+
+                if (response != null && response.getResult() != null && response.getResult().getMistakes() != null) {
+                    for (CheckResponse.Result.Mistake mistake : response.getResult().getMistakes()) {
+                        mistake.setIdx(mistakeIndex++); // 设置索引
+                        allMistakes.add(mistake);
+
+                        // 找到对应段落
+                        int adjustedOffset = mistake.getL();
+                        for (int i = 0; i < paragraphLengths.size(); i++) {
+                            if (adjustedOffset < paragraphLengths.get(i)) {
+                                Element targetParagraph = pElements.get(i);
+                                int paragraphStartOffset = (i == 0) ? 0 : paragraphLengths.get(i - 1);
+                                mapMistakeToHtml(targetParagraph, mistake, paragraphStartOffset);
+                                break;
+                            } else {
+                                adjustedOffset -= paragraphLengths.get(i);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 保存更新的 HTML 文件
+            String updatedHtmlPath = fileUploadDir + File.separator + uuid + File.separator + "在线文本爱检查检测之后的HTML.html";
+            Files.write(Paths.get(updatedHtmlPath), doc.html().getBytes(StandardCharsets.UTF_8));
+            resultMap.put("htmlFile", updatedHtmlPath);
+
+            // 保存检测错误的 JSON 文件
+            String mistakesJsonPath = fileUploadDir + File.separator + uuid + File.separator + "在线文本爱检查检测结果.json";
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(Paths.get(mistakesJsonPath).toFile(), allMistakes);
+            resultMap.put("jsonFile", mistakesJsonPath);
+
+            return resultMap;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyMap();
+    }
+
+    private void mapMistakeToHtml(Element element, CheckResponse.Result.Mistake mistake, int offset) {
+        if (element == null) return;
+
+        // 获取段落的子节点
+        List<TextNode> textNodes = getTextNodes(element);
+
+        // 计算错误在段落内的起始和结束位置
+        int start = mistake.getL() - offset;
+        int end = mistake.getR() - offset;
+
+        // 检查边界
+        if (start < 0 || end <= start) {
+            System.out.println("错误范围不在段落内: start=" + start + ", end=" + end);
+            return;
+        }
+
+        int currentOffset = 0;
+        for (TextNode textNode : textNodes) {
+            String text = textNode.text();
+            int textLength = text.length();
+
+            if (currentOffset + textLength > start) {
+                // 错误开始在当前节点中
+                int relativeStart = Math.max(start - currentOffset, 0);
+                int relativeEnd = Math.min(end - currentOffset, textLength);
+
+                // 标记错误文本
+                String errorText = text.substring(relativeStart, relativeEnd);
+                String markedText = "<span class=\"custom-underline-red idx" + mistake.getIdx() + " \" data-proof-id=\"" + mistake.getIdx() + "\">" + errorText + "</span>";
+
+                // 更新当前节点
+                String updatedText = text.substring(0, relativeStart) + markedText + text.substring(relativeEnd);
+                textNode.text(""); // 清空当前节点
+                textNode.before(updatedText); // 插入更新内容
+
+                // 检查错误是否完全处理
+                end -= relativeEnd - relativeStart;
+                if (end <= currentOffset + relativeEnd) {
+                    break;
+                }
+            }
+
+            currentOffset += textLength;
+        }
+    }
+
+    private List<TextNode> getTextNodes(Element element) {
+        List<TextNode> textNodes = new ArrayList<>();
+        for (Node node : element.childNodes()) {
+            if (node instanceof TextNode) {
+                textNodes.add((TextNode) node);
+            } else if (node instanceof Element) {
+                textNodes.addAll(getTextNodes((Element) node));
+            }
+        }
+        return textNodes;
+    }
+
+
+    private static class BatchItem {
+        private final String text; // 当前批次的文本内容
+        private final List<Element> elements; // 当前批次的段落集合
+        private int offset;        // 当前批次的起始偏移量
+
+        public BatchItem(String text, int offset, List<Element> elements) {
+            this.text = text;
+            this.offset = offset;
+            this.elements = elements;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
+
+        public List<Element> getElements() {
+            return elements;
+        }
+    }
+
+
 }

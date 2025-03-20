@@ -11,6 +11,7 @@ import com.doc.format.vo.FileListVo;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 文件总览Service接口类
@@ -109,4 +110,6 @@ public interface IFileService extends IService<FileEntity> {
     Result<FileDetailVo> wordBatchCheck(FileSaveBo saveBo) throws Exception;
 
     Result<String> htmlToDoc(long id, String file);
+
+    Result<String> onlineCheck(String s, UUID uuid);
 }

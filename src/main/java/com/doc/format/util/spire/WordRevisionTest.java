@@ -1,24 +1,10 @@
 package com.doc.format.util.spire;
 
-import com.doc.format.util.entity.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spire.doc.*;
 import com.spire.doc.documents.Paragraph;
-import com.spire.doc.documents.UnderlineStyle;
-import com.spire.doc.fields.DocPicture;
-import com.spire.doc.fields.Field;
-import com.spire.doc.fields.TextRange;
-import org.jsoup.Jsoup;
-import com.doc.format.util.entity.DocumentElement;
-import com.doc.format.util.entity.ParagraphElement;
-import com.doc.format.util.iJianCha.CheckResponse;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
-import java.util.List;
 
 import static com.doc.format.util.spire.ContentVerificationToHtml.extractProofData;
 import static com.doc.format.util.spire.JsonToWord.removeTite;
@@ -38,11 +24,11 @@ import static com.doc.format.util.spire.JsonToWord.removeTite;
 public class WordRevisionTest {
 
     public static String getDocumentElements(String docxFilePath, String htmlFilePath) {
-        String output ="";
-        if(docxFilePath.endsWith(".docx") ){
-            output =  docxFilePath.replace(".docx", "_文字检查完成.docx");
+        String output = "";
+        if (docxFilePath.endsWith(".docx")) {
+            output = docxFilePath.replace(".docx", "_文字检查完成.docx");
 
-        }else  if(docxFilePath.endsWith(".doc") ){
+        } else if (docxFilePath.endsWith(".doc")) {
             output = docxFilePath.replace(".doc", "_文字检查完成.doc");
         }
         Map<String, String> map = extractProofData(htmlFilePath);
@@ -71,7 +57,10 @@ public class WordRevisionTest {
 
                 if (documentObject instanceof Paragraph) {
                     Paragraph paragraph = (Paragraph) documentObject;
-                    paragraph.setText(text);
+                    if (!"".equals(paragraph.getText())) {
+                        paragraph.setText(text);
+                    }
+
                 }
             }
 
