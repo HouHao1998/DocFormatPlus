@@ -11,6 +11,7 @@ package com.doc.format.enums;
  * @author 侯浩(1272)
  * @date 2025/3/20 13:46
  */
+
 /**
  * 解析过程状态枚举
  */
@@ -63,12 +64,13 @@ public enum FormatStatusEnum {
      * 限制：格式化结果需进一步确认是否符合要求。
      */
     FORMATTED("FORMATTED", "内容已格式化"),
-
+    ERROR("ERROR", "处理失败"),
     /**
      * 格式化调用失败
      * 作用：表示文档格式化处理失败。
      * 限制：需检查格式化逻辑或输入数据。
      */
+
     FORMAT_FAILED("FORMAT_FAILED", "格式化调用失败");
 
 

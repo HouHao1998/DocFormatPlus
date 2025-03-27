@@ -71,4 +71,5 @@ public class UserDetailVo implements Serializable {
      */
     @ApiModelProperty(value = "删除标记（0-正常 1-删除）")
     private Integer deleted;
+    private String token;
 }

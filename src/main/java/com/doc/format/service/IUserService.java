@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.doc.format.entity.UserEntity;
 import com.doc.format.bo.UserSaveBo;
 import com.doc.format.bo.UserQueryBo;
+import com.doc.format.util.user.User;
 import com.doc.format.vo.UserDetailVo;
 import com.doc.format.vo.UserListVo;
 
@@ -104,4 +105,8 @@ public interface IUserService extends IService<UserEntity> {
      * @return 2025-03-16 14:15:24详情实体
      */
     Result<List<UserListVo>> selectIdsList(List<Long> ids);
+
+    UserDetailVo getUser();
+
+    UserDetailVo login(String username, String password);
 }

@@ -1,7 +1,9 @@
 package com.doc.format.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.doc.format.entity.FormatTaskEntity;
 import com.doc.format.entity.Result;
+import com.doc.format.enums.FormatStatusEnum;
 import com.doc.format.service.IFormatTaskService;
 import com.doc.format.bo.FormatTaskQueryBo;
 import com.doc.format.bo.FormatTaskSaveBo;
@@ -11,11 +13,16 @@ import com.doc.format.vo.FormatTaskListVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -32,6 +39,18 @@ public class FormatTaskController {
 
     @Resource
     private IFormatTaskService formatTaskService;
+
+
+    /**
+     * 任务重试接口
+     *
+     * @param id 任务ID
+     * @return 重试结果
+     */
+    @PostMapping("/retry/{id}")
+    public Result<String> retryTask(@PathVariable Long id) {
+        return formatTaskService.retryTask(id);
+    }
 
     @ApiOperation(value = "文档格式化任务分页查询", notes = "文档格式化任务分页查询")
     @PostMapping("/page")
@@ -78,10 +97,17 @@ public class FormatTaskController {
         }
         return formatTaskService.selectIdsList(queryBo.getIds());
     }
+
     @ApiOperation(value = "论文格式化", notes = "论文格式化")
     @PostMapping("/formatWord")
     public Result<FormatTaskDetailVo> formatWord(@RequestParam("file") MultipartFile file) throws Exception {
         return formatTaskService.formatWord(file);
+    }
+
+    @ApiOperation(value = "查看文档格式化日志", notes = "查看文档格式化日志")
+    @GetMapping("/log/{id}")
+    public Result<String> formatLog(@PathVariable("id") long id) throws Exception {
+        return formatTaskService.formatLog(id);
     }
 
 }

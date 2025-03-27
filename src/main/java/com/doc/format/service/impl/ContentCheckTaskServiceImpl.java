@@ -56,6 +56,8 @@ public class ContentCheckTaskServiceImpl extends ServiceImpl<ContentCheckTaskMap
     private static final String I_JIAN_CHA_RECOMMENDATION_LEVEL = "IJianCha_Recommendation_Level";
     @Value("${file.upload.dir}")
     private String fileUploadDir;
+    @Value("${http.upload.dir}")
+    private String httpUploadDir;
     @Resource
     private JedisUtil jedisUtil;
     @Resource
@@ -233,9 +235,11 @@ public class ContentCheckTaskServiceImpl extends ServiceImpl<ContentCheckTaskMap
             // === 5. 设置实体字段 ===
             // 路径统一转换为相对路径存储
             entity.setOriginalFile(sourceFilePath);
+            entity.setOriginalUrl( httpUploadDir +sourceFilePath);
             entity.setParsedText(documentText); // 直接存储文本内容
             entity.setParsedJson(StringUtils.defaultString(document.get("format"), "{}")); // 防null处理
             entity.setCheckedFile(checkedFilePath); // 设置校验文件路径
+            entity.setCheckedUrl( httpUploadDir +checkedFilePath);
 
             // 新增字段设置（根据实际业务补充数据来源）
             entity.setTaskStatus(CheckStatusEnum.UPLOADED.getCode()); // 初始状态
@@ -343,6 +347,9 @@ public class ContentCheckTaskServiceImpl extends ServiceImpl<ContentCheckTaskMap
             }
 
         });
+        if(contentCheckTaskEntity==null){
+            contentCheckTaskEntity=baseMapper.selectById(1);
+        }
         //保存结果文档
         document.saveToFile(contentCheckTaskEntity.getCheckedFile(), FileFormat.Docm_2019);
         removeTite(contentCheckTaskEntity.getCheckedFile());

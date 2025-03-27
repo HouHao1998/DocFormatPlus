@@ -41,4 +41,6 @@ public interface ChatRecordMapper extends BaseMapper<ChatRecordEntity> {
      * @date 2025-03-16 14:15:24
      */
     List<ChatRecordListVo> getList(@Param("queryBo") ChatRecordQueryBo queryBo);
+
+    void deleteBySessionId(Long sessionId);
 }

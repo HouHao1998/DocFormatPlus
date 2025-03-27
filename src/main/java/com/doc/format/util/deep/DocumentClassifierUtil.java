@@ -25,17 +25,18 @@ import java.util.*;
 
 
 import static com.doc.format.util.JsonBracketCompleter.completeBrackets;
+
 @Service
 @Slf4j
 public class DocumentClassifierUtil {
-    @Value("${deepSheep.api.key}")
-    private String apiKey;
     private static final String FORMAT_REASONING_CONTENT = "format:{id}:reasoning_content";
     private static final String FORMAT_CONTENT = "format:{id}:content";
-    @Resource
-    private JedisUtil jedisUtil;
     private final ObjectMapper mapper = new ObjectMapper();
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
+    @Value("${deepSheep.api.key}")
+    private String apiKey;
+    @Resource
+    private JedisUtil jedisUtil;
 
     public void saveDocumentParagraphs(List<DocumentParagraph> paragraphs, String outputFilePath) {
         try {
@@ -51,7 +52,7 @@ public class DocumentClassifierUtil {
     }
 
     // 构建分类请求
-    public String callClassificationApi(String requestBody,Long id) throws Exception {
+    public String callClassificationApi(String requestBody, Long id) throws Exception {
         String API_URL = "https://api.deepseek.com/v1/chat/completions";
         HttpPost request = new HttpPost(API_URL);
         request.setHeader("Authorization", "Bearer " + apiKey);
@@ -73,7 +74,6 @@ public class DocumentClassifierUtil {
             String line;
             // 持续读取流式返回的数据
             while ((line = reader.readLine()) != null) {
-                log.info(line);
                 // 过滤掉非数据行，比如 SSE 格式可能包含空行或其他前缀
                 if (line.startsWith("data: ")) {
                     // 去掉 "data: " 前缀
@@ -93,13 +93,13 @@ public class DocumentClassifierUtil {
                                 if (content != null && !content.asText().equals("null")) {
                                     // 将当前 chunk 的文本内容拼接到结果中
                                     resultBuilder.append(content.asText());
-                                    jedisUtil.set(FORMAT_CONTENT.replace("{id}", String.valueOf(id)), content.asText());
+                                    jedisUtil.set(FORMAT_CONTENT.replace("{id}", String.valueOf(id)), String.valueOf(resultBuilder));
 
                                 }
                                 JsonNode reasoningContent = delta.get("reasoning_content");
                                 if (reasoningContent != null && !reasoningContent.asText().equals("null")) {
                                     reasoningContentBuilder.append(reasoningContent.asText());
-                                   jedisUtil.set(FORMAT_REASONING_CONTENT.replace("{id}", String.valueOf(id)), reasoningContent.asText());
+                                    jedisUtil.set(FORMAT_REASONING_CONTENT.replace("{id}", String.valueOf(id)), String.valueOf(resultBuilder));
                                 }
                             }
                         }
@@ -126,6 +126,8 @@ public class DocumentClassifierUtil {
         return mapper.writeValueAsString(Map.of(
                 // "model", "deepseek-reasoner",
                 "model", "deepseek-chat",
+                "max_tokens", 8192,
+                "response_format", Map.of("type", "json_object"),
                 "temperature", 1.0,
                 "stream", true,
                 "messages", new Object[]{

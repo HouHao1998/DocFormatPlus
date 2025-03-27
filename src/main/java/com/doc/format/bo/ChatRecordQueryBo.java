@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  *
  * @author HouHao
  * @version 1.0
- * @date 2025-03-16 14:15:24
+ * @date 2025-03-25 10:13:32
  */
 @Data
 @ApiModel
@@ -106,5 +106,23 @@ public class ChatRecordQueryBo extends PageBo implements Serializable {
      */
     @ApiModelProperty(value = "删除标记")
     private Integer deleted;
+
+    /**
+     * 推理内容
+     */
+    @ApiModelProperty(value = "推理内容")
+    private String reasoningContent;
+
+    /**
+     * 模型类型
+     */
+    @ApiModelProperty(value = "模型类型")
+    private String modelType;
+
+    /**
+     * 消息状态
+     */
+    @ApiModelProperty(value = "消息状态")
+    private String responseState;
 
 }

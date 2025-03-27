@@ -1,10 +1,12 @@
 package com.doc.format.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.doc.format.bo.CheckRequestBo;
 import com.doc.format.entity.Result;
 import com.doc.format.service.IContentCheckTaskService;
 import com.doc.format.bo.ContentCheckTaskQueryBo;
 import com.doc.format.bo.ContentCheckTaskSaveBo;
+import com.doc.format.util.iJianCha.CheckRequest;
 import com.doc.format.util.iJianCha.CheckResponse;
 import com.doc.format.vo.ContentCheckTaskDetailVo;
 import com.doc.format.vo.ContentCheckTaskListVo;
@@ -87,11 +89,13 @@ public class ContentCheckTaskController {
     }
 
     @ApiOperation(value = "校验文字内容", notes = "校验文字内容")
-    @PostMapping("/check/{id}")
-    public Result<CheckResponse> check(@PathVariable Integer id, String text) throws Exception {
-        return contentCheckTaskService.check(id, text);
+    @PostMapping("/check")
+    public Result<CheckResponse> check( // 使用Long类型更安全1
+                                        @RequestBody CheckRequestBo request) throws Exception {
+        return contentCheckTaskService.check(request.getId(), request.getText());
     }
-    @ApiOperation(value = "校验文字内容", notes = "校验文字内容")
+
+    @ApiOperation(value = "下载word文档", notes = "下载word文档")
     @PostMapping("/download")
     public Result<ContentCheckTaskDetailVo> download(@RequestBody ContentCheckTaskSaveBo saveBo) throws Exception {
         return contentCheckTaskService.download(saveBo);

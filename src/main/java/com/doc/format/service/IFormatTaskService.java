@@ -108,4 +108,9 @@ public interface IFormatTaskService extends IService<FormatTaskEntity> {
     Result<List<FormatTaskListVo>> selectIdsList(List<Long> ids);
 
     Result<FormatTaskDetailVo> formatWord(MultipartFile file);
+
+
+    Result<String> formatLog(long id);
+
+    Result<String> retryTask(Long id);
 }

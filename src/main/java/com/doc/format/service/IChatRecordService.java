@@ -8,6 +8,7 @@ import com.doc.format.bo.ChatRecordSaveBo;
 import com.doc.format.bo.ChatRecordQueryBo;
 import com.doc.format.vo.ChatRecordDetailVo;
 import com.doc.format.vo.ChatRecordListVo;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -104,4 +105,6 @@ public interface IChatRecordService extends IService<ChatRecordEntity> {
      * @return 2025-03-16 14:15:24详情实体
      */
     Result<List<ChatRecordListVo>> selectIdsList(List<Long> ids);
+
+    SseEmitter handleStreamChat(ChatRecordQueryBo request);
 }

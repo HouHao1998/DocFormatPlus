@@ -31,6 +31,7 @@ public interface FormatTaskMapper extends BaseMapper<FormatTaskEntity> {
      * @date 2025-03-16 14:15:24
      */
     List<FormatTaskListVo> getList(Page<FormatTaskListVo> page, @Param("queryBo") FormatTaskQueryBo queryBo);
+    Integer getCount( @Param("queryBo") FormatTaskQueryBo queryBo);
 
     /**
      * 文档格式化任务列表查询

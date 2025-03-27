@@ -10,10 +10,13 @@ import com.doc.format.mapper.AiSessionMapper;
 import com.doc.format.service.IAiSessionService;
 import com.doc.format.bo.AiSessionQueryBo;
 import com.doc.format.bo.AiSessionSaveBo;
+import com.doc.format.service.IUserService;
 import com.doc.format.vo.AiSessionDetailVo;
 import com.doc.format.vo.AiSessionListVo;
+import com.doc.format.vo.UserDetailVo;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
@@ -27,6 +30,8 @@ import java.util.Date;
  */
 @Service
 public class AiSessionServiceImpl extends ServiceImpl<AiSessionMapper, AiSessionEntity> implements IAiSessionService {
+    @Resource
+    private IUserService userService;
 
     @Override
     public Result<Page<AiSessionListVo>> page(AiSessionQueryBo queryBo) {
@@ -60,7 +65,15 @@ public class AiSessionServiceImpl extends ServiceImpl<AiSessionMapper, AiSession
     @Override
     public Result<AiSessionDetailVo> insert(AiSessionSaveBo saveBo) {
         // 转换参数实体
+        UserDetailVo user = userService.getUser();
         AiSessionEntity entity = BeanUtil.copyProperties(saveBo, AiSessionEntity.class);
+        String userMsg = saveBo.getSessionName();
+
+        if (userMsg != null && userMsg.length() > 10) {
+            userMsg = userMsg.substring(0, 10);
+        }
+        saveBo.setSessionName(userMsg);
+        entity.setUserId(user.getId());
         entity.setCreateTime(new Date());
         entity.setUpdateTime(new Date());
         int row = baseMapper.insert(entity);

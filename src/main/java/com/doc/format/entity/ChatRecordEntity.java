@@ -15,7 +15,7 @@ import java.io.Serializable;
  *
  * @author HouHao
  * @version 1.0
- * @date 2025-03-16 14:15:24
+ * @date 2025-03-25 10:13:32
  */
 @Data
 @TableName("chat_record")
@@ -78,4 +78,19 @@ public class ChatRecordEntity implements Serializable {
      */
     @TableField("deleted")
     private Integer deleted;
+    /**
+     * 推理内容
+     */
+    @TableField("reasoning_content")
+    private String reasoningContent;
+    /**
+     * 模型类型
+     */
+    @TableField("model_type")
+    private String modelType;
+    /**
+     * 消息状态
+     */
+    @TableField("response_state")
+    private String responseState;
 }

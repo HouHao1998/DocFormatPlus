@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  *
  * @author HouHao
  * @version 1.0
- * @date 2025-03-19 15:03:18
+ * @date 2025-03-25 16:32:34
  */
 @Data
 @ApiModel
@@ -89,8 +89,51 @@ public class ContentCheckTaskSaveBo implements Serializable {
     @ApiModelProperty(value = "任务状态")
     private String taskStatus;
 
+    /**
+     * 创建者
+     */
+    @ApiModelProperty(value = "创建者")
+    private String creator;
+
+    /**
+     * 更新者
+     */
+    @ApiModelProperty(value = "更新者")
+    private String updater;
+
+    /**
+     * 创建时间
+     */
+    @ApiModelProperty(value = "创建时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    @ApiModelProperty(value = "更新时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
+
+    /**
+     * 删除标记
+     */
+    @ApiModelProperty(value = "删除标记")
+    private Integer deleted;
+
+    /**
+     * 原始文件网址
+     */
+    @ApiModelProperty(value = "原始文件网址")
+    private String originalUrl;
+
+    /**
+     * 校验后文件网址
+     */
+    @ApiModelProperty(value = "校验后文件网址")
+    private String checkedUrl;
+
     private List<Map<String, String>> textList;
-
-
-
 }

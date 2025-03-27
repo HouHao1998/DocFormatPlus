@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.doc.format.vo.UserDetailVo;
 import lombok.Data;
 
 import java.util.Date;
@@ -19,7 +20,7 @@ import java.io.Serializable;
  */
 @Data
 @TableName("user")
-public class UserEntity implements Serializable {
+public class UserEntity extends UserDetailVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -63,4 +64,6 @@ public class UserEntity implements Serializable {
      */
     @TableField("deleted")
     private Integer deleted;
+    @TableField(exist = false)
+    private String token;
 }

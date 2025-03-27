@@ -10,10 +10,18 @@ import com.doc.format.mapper.UserMapper;
 import com.doc.format.service.IUserService;
 import com.doc.format.bo.UserQueryBo;
 import com.doc.format.bo.UserSaveBo;
+import com.doc.format.util.JwtUtil;
+import com.doc.format.util.user.User;
+import com.doc.format.util.user.YourUserDetails;
 import com.doc.format.vo.UserDetailVo;
 import com.doc.format.vo.UserListVo;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
@@ -27,6 +35,10 @@ import java.util.Date;
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> implements IUserService {
+    @Resource
+    private PasswordEncoder passwordEncoder; // Spring Security 提供的接口
+    @Resource
+    private JwtUtil jwtUtil;
 
     @Override
     public Result<Page<UserListVo>> page(UserQueryBo queryBo) {
@@ -105,5 +117,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
             teacherFeedbackListVos.add(BeanUtil.copyProperties(teacherFeedbackEntity, UserListVo.class));
         }
         return Result.success(teacherFeedbackListVos);
+    }
+
+    @Override
+    public UserDetailVo getUser() {
+        // 获取当前用户信息
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetailVo) {
+                UserDetailVo userDetails = (UserDetailVo) principal;
+                return userDetails;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public UserDetailVo login(String username, String password) {
+        // 1. 根据用户名查询用户
+        UserEntity userEntity = baseMapper.selectOne(new LambdaQueryWrapper<UserEntity>().eq(UserEntity::getUsername, username));
+        if (userEntity == null) return null;
+        // 2. 校验密码（需对接加密逻辑，如 BCrypt）
+        if (!passwordEncoder.matches(password, userEntity.getPassword())) {
+            return null;
+        }
+
+        // 3. 返回用户信息（脱敏处理）
+        UserDetailVo userDetailVo = BeanUtil.copyProperties(userEntity, UserDetailVo.class);
+        // 可选：生成 JWT Token 返回
+        String token = jwtUtil.generateToken(userDetailVo.getId(), userDetailVo.getUsername());
+        userDetailVo.setPassword(null);
+        userDetailVo.setToken(token); // 或直接返回 Token
+        return userDetailVo;
     }
 }

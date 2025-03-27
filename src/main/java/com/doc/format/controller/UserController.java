@@ -7,6 +7,7 @@ import com.doc.format.bo.UserQueryBo;
 import com.doc.format.bo.UserSaveBo;
 import com.doc.format.vo.UserDetailVo;
 import com.doc.format.vo.UserListVo;
+import com.doc.format.util.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -47,6 +48,17 @@ public class UserController {
     @GetMapping("/info/{id}")
     public Result<UserDetailVo> get(@PathVariable("id") long id) throws Exception {
         return userService.get(id);
+    }
+
+    @ApiOperation(value = "用户登录", notes = "用户登录认证接口")
+    @PostMapping("/login")
+    public Result<UserDetailVo> login(@RequestBody UserQueryBo loginBo) throws Exception {
+        // 调用 Service 层处理登录逻辑
+        UserDetailVo user = userService.login(loginBo.getUsername(), loginBo.getPassword());
+        if (user == null) {
+            return Result.fail("用户名或密码错误");
+        }
+        return Result.success(user);
     }
 
     @ApiOperation(value = "用户新增", notes = "用户新增")

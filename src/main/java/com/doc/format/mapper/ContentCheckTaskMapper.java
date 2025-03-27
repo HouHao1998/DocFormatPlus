@@ -31,6 +31,7 @@ public interface ContentCheckTaskMapper extends BaseMapper<ContentCheckTaskEntit
      * @date 2025-03-16 14:15:24
      */
     List<ContentCheckTaskListVo> getList(Page<ContentCheckTaskListVo> page, @Param("queryBo") ContentCheckTaskQueryBo queryBo);
+    Integer getCount( @Param("queryBo") ContentCheckTaskQueryBo queryBo);
 
     /**
      * 内容校验任务列表查询

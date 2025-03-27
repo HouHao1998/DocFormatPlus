@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -47,6 +48,12 @@ public class ChatRecordController {
     @GetMapping("/info/{id}")
     public Result<ChatRecordDetailVo> get(@PathVariable("id") long id) throws Exception {
         return chatRecordService.get(id);
+    }
+
+    @PostMapping("/stream")
+    @ApiOperation(value = "发起流式对话", notes = "返回流式响应")
+    public SseEmitter streamChat(@RequestBody ChatRecordQueryBo request) {
+        return chatRecordService.handleStreamChat(request);
     }
 
     @ApiOperation(value = "AI对话记录新增", notes = "AI对话记录新增")

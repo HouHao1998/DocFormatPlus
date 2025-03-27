@@ -15,7 +15,7 @@ import java.io.Serializable;
  *
  * @author HouHao
  * @version 1.0
- * @date 2025-03-19 15:03:18
+ * @date 2025-03-25 16:32:34
  */
 @Data
 @TableName("content_check_task")
@@ -98,4 +98,14 @@ public class ContentCheckTaskEntity implements Serializable {
      */
     @TableField("deleted")
     private Integer deleted;
+    /**
+     * 原始文件网址
+     */
+    @TableField("original_url")
+    private String originalUrl;
+    /**
+     * 校验后文件网址
+     */
+    @TableField("checked_url")
+    private String checkedUrl;
 }

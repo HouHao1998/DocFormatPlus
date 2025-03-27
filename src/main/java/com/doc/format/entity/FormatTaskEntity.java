@@ -15,7 +15,7 @@ import java.io.Serializable;
  *
  * @author HouHao
  * @version 1.0
- * @date 2025-03-16 15:29:00
+ * @date 2025-03-25 16:32:34
  */
 @Data
 @TableName("format_task")
@@ -83,4 +83,14 @@ public class FormatTaskEntity implements Serializable {
      */
     @TableField("deleted")
     private Integer deleted;
+    /**
+     * 原始文件网址
+     */
+    @TableField("original_url")
+    private String originalUrl;
+    /**
+     * 校验后文件网址
+     */
+    @TableField("formatted_url")
+    private String formattedUrl;
 }

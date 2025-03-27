@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
  *
  * @author HouHao
  * @version 1.0
- * @date 2025-03-16 15:29:00
+ * @date 2025-03-25 16:32:34
  */
 @Data
 @ApiModel
@@ -102,5 +102,17 @@ public class FormatTaskSaveBo implements Serializable {
      */
     @ApiModelProperty(value = "删除标记")
     private Integer deleted;
+
+    /**
+     * 原始文件网址
+     */
+    @ApiModelProperty(value = "原始文件网址")
+    private String originalUrl;
+
+    /**
+     * 校验后文件网址
+     */
+    @ApiModelProperty(value = "校验后文件网址")
+    private String formattedUrl;
 
 }
